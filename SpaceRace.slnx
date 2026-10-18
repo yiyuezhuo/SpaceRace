@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="SpaceRace.Android/SpaceRace.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="SpaceRace.Browser/SpaceRace.Browser.csproj" />
+  <Project Path="SpaceRace.Desktop/SpaceRace.Desktop.csproj" />
+  <Project Path="SpaceRace.iOS/SpaceRace.iOS.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="SpaceRace/SpaceRace.csproj" />
+</Solution>
