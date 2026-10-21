@@ -14,8 +14,11 @@ public partial class MainViewModel : ViewModelBase
 {
     public GameSession Session{get;} = new();
 
-    [ObservableProperty]
-    public partial string Greeting { get; set; } = "Welcome to Avalonia!";
+    public Spacecraft? SelectedSpacecraft{get;set;} = null;
+
+    // [ObservableProperty]
+    // public partial string Greeting { get; set; } = "Welcome to Avalonia!";
+
 
     public MainViewModel()
     {

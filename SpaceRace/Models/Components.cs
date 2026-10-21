@@ -21,13 +21,13 @@ public enum BuildableTag
     IonThruster,
 }
 
-public class Component
+public class ComponentDef
 {
     public string Name{get;set;} = "";
     public ComponentType Type{get;set;}
     public BuildableTag Tag{get;set;} = BuildableTag.None;
     public bool IsOneshot{get;set;} = false;
-    public int Quantity{get;set;} = 0;
+    // public int Quantity{get;set;} = 0;
     public int Price{get;set;} = 1;
     public int Mass{get;set;} = 1;
     public int Thrust{get;set;} = 0;
@@ -38,7 +38,7 @@ public class Component
     public bool IsDoctor{get;set;} = false;
     public bool IsMechanic{get;set;} = false;
     public bool IsPilot{get;set;} = false;
-    public bool Damaged{get;set;} = false;
+    // public bool Damaged{get;set;} = false;
 
     public string Description
     {
@@ -76,7 +76,7 @@ public class Component
         }
     }
 
-    public static Component MakeThruster(string name, BuildableTag tag, int mass, int price, int thrust, bool isOneshot = true)
+    public static ComponentDef MakeThruster(string name, BuildableTag tag, int mass, int price, int thrust, bool isOneshot = true)
     {
         return new()
         {
@@ -86,10 +86,11 @@ public class Component
             Mass=mass,
             Price=price,
             IsOneshot=isOneshot,
+            Thrust=thrust
         };
     }
 
-    public static Component MakeCapsule(string name, int mass, int price, int seats, bool hasHeatShield, int radiationModifier=0)
+    public static ComponentDef MakeCapsule(string name, int mass, int price, int seats, bool hasHeatShield, int radiationModifier=0)
     {
         return new()
         {
@@ -104,7 +105,7 @@ public class Component
         };
     }
 
-    public static Component MakeAstronaut(string name, bool isDoctor = false, bool isMechanic = false, bool isPilot = false, int price=2)
+    public static ComponentDef MakeAstronaut(string name, bool isDoctor = false, bool isMechanic = false, bool isPilot = false, int price=2)
     {
         return new()
         {
@@ -116,4 +117,10 @@ public class Component
             Price=price
         };
     }
+}
+
+public class Component
+{
+    public required ComponentDef Def{get;set;}
+    public bool Damaged{get;set;}
 }

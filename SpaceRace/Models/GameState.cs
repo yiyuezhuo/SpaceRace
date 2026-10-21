@@ -25,38 +25,40 @@ public class GameState : ObservableObject
         new() { Name = "Surveying", EnableSurveying=true},
     };
 
-    public ObservableCollection<Component> Components { get; } = new()
+    public ObservableCollection<ComponentDef> ComponentDefs { get; } = new()
     {
-        Component.MakeThruster("Juno", BuildableTag.JunoRocket, mass: 10, price: 1, thrust: 20),
-        Component.MakeThruster("Atlas", BuildableTag.AtlasRocket, mass: 20, price: 5, thrust: 40),
-        Component.MakeThruster("Soyuz", BuildableTag.SoyuzRocket, mass: 25, price: 8, thrust: 50),
-        Component.MakeThruster("Saturn", BuildableTag.SaturnRocket, mass: 30, price: 15, thrust: 60),
-        Component.MakeThruster("Ion Thruster", BuildableTag.IonThruster, mass: 5, price: 10, thrust: 30, isOneshot: false),
-        new Component(){Name="Probe", Type=ComponentType.Device, Surveyable=true, Mass=1, Price=2},
-        Component.MakeCapsule("Vostok", mass: 2, price: 2, seats: 1, hasHeatShield: true),
-        Component.MakeCapsule("Apollo", mass: 3, price: 4, seats: 3, hasHeatShield: true),
-        Component.MakeCapsule("Eagle", mass: 1, price: 4, seats: 2, hasHeatShield: false),
-        Component.MakeCapsule("Aldrin", mass: 3, price: 4, seats: 8, hasHeatShield: false, radiationModifier: -1),
-        new Component(){Name="Supply", Type=ComponentType.Supply, Mass=1, Price=1},
-        Component.MakeAstronaut("Boris Yegorov", isDoctor: true),
-        Component.MakeAstronaut("Buzz Aldrin", isMechanic: true),
-        Component.MakeAstronaut("Neil Armstrong", isPilot: true),
-        Component.MakeAstronaut("Valery Bykovsky", isDoctor: true),
-        Component.MakeAstronaut("Mike Collins", isDoctor: true),
-        Component.MakeAstronaut("Konstantin Feoktistov", isMechanic: true),
-        Component.MakeAstronaut("Yuri Gagarin", isPilot: true),
-        Component.MakeAstronaut("John Glenn", isPilot: true),
-        Component.MakeAstronaut("Gus Grissom", isMechanic: true),
-        Component.MakeAstronaut("Vladimir Komarov", isMechanic: true),
-        Component.MakeAstronaut("Jim Lovell", isMechanic: true),
-        Component.MakeAstronaut("Alan Shepard", isPilot: true),
-        Component.MakeAstronaut("Valentina Tereshkova", isDoctor: true),
-        Component.MakeAstronaut("Gherman Titov", isDoctor: true),
-        Component.MakeAstronaut("Joseph Walker", isPilot: true),
+        ComponentDef.MakeThruster("Juno", BuildableTag.JunoRocket, mass: 1, price: 1, thrust: 4),
+        ComponentDef.MakeThruster("Atlas", BuildableTag.AtlasRocket, mass: 4, price: 5, thrust: 27),
+        ComponentDef.MakeThruster("Soyuz", BuildableTag.SoyuzRocket, mass: 9, price: 8, thrust: 80),
+        ComponentDef.MakeThruster("Saturn", BuildableTag.SaturnRocket, mass: 20, price: 15, thrust: 200),
+        ComponentDef.MakeThruster("Ion Thruster", BuildableTag.IonThruster, mass: 1, price: 10, thrust: 5, isOneshot: false),
+        new ComponentDef(){Name="Probe", Type=ComponentType.Device, Surveyable=true, Mass=1, Price=2},
+        ComponentDef.MakeCapsule("Vostok", mass: 2, price: 2, seats: 1, hasHeatShield: true),
+        ComponentDef.MakeCapsule("Apollo", mass: 3, price: 4, seats: 3, hasHeatShield: true),
+        ComponentDef.MakeCapsule("Eagle", mass: 1, price: 4, seats: 2, hasHeatShield: false),
+        ComponentDef.MakeCapsule("Aldrin", mass: 3, price: 4, seats: 8, hasHeatShield: false, radiationModifier: -1),
+        new ComponentDef(){Name="Supply", Type=ComponentType.Supply, Mass=1, Price=1},
+        ComponentDef.MakeAstronaut("Boris Yegorov", isDoctor: true),
+        ComponentDef.MakeAstronaut("Buzz Aldrin", isMechanic: true),
+        ComponentDef.MakeAstronaut("Neil Armstrong", isPilot: true),
+        ComponentDef.MakeAstronaut("Valery Bykovsky", isDoctor: true),
+        ComponentDef.MakeAstronaut("Mike Collins", isDoctor: true),
+        ComponentDef.MakeAstronaut("Konstantin Feoktistov", isMechanic: true),
+        ComponentDef.MakeAstronaut("Yuri Gagarin", isPilot: true),
+        ComponentDef.MakeAstronaut("John Glenn", isPilot: true),
+        ComponentDef.MakeAstronaut("Gus Grissom", isMechanic: true),
+        ComponentDef.MakeAstronaut("Vladimir Komarov", isMechanic: true),
+        ComponentDef.MakeAstronaut("Jim Lovell", isMechanic: true),
+        ComponentDef.MakeAstronaut("Alan Shepard", isPilot: true),
+        ComponentDef.MakeAstronaut("Valentina Tereshkova", isDoctor: true),
+        ComponentDef.MakeAstronaut("Gherman Titov", isDoctor: true),
+        ComponentDef.MakeAstronaut("Joseph Walker", isPilot: true),
     };
 
     public ObservableCollection<Location> Locations { get; } = new();
     public List<Route> Routes{get;} = new();
+    public List<Component> Inventory{get;} = new();
+    public List<Spacecraft> Spacecrafts{get;} = new();
 
     public GameState()
     {

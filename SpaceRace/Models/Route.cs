@@ -35,7 +35,7 @@ public class Route
             {
                 words.Add($"Astronaut Incapacitation Check");
             }
-            return string.Join(",", words);
+            return string.Join(", ", words);
         }
     }
 

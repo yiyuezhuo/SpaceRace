@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SpaceRace.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="SpaceRace.Views.MainView"
              x:DataType="vm:MainViewModel">
     <Design.DataContext>
@@ -18,49 +18,80 @@
                     HorizontalAlignment="Center"
             VerticalAlignment="Center" /> -->
             
-            <StackPanel DataContext="{Binding Session.State}">
+            <StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="Year:" />
-                    <TextBlock Text="{Binding Year}" />
+                    <TextBlock Text="{Binding Session.State.Year}" />
                     <TextBlock Text="Funds:" />
-                    <TextBlock Text="{Binding Funds}" />
+                    <TextBlock Text="{Binding Session.State.Funds}" />
                     <TextBlock Text="Score:" />
-                    <TextBlock Text="{Binding Score}" />
+                    <TextBlock Text="{Binding Session.State.Score}" />
                 </StackPanel>
 
-                <TableView ItemsSource="{Binding Researches}">
-                    <TableView.Columns>
-                        <TableViewColumn Header="Name" Binding="{Binding Name}" />
-                        <TableViewColumn Header="Status" Binding="{Binding ResearchedStatus}"/>
-                        <TableViewColumn Header="Price" Binding="{Binding Price}" />
-                        <TableViewColumn Header="Description" Binding="{Binding Description}" />
-                    </TableView.Columns>
-                </TableView>
+                
+                <Grid ColumnDefinitions="2*,*,*" ColumnSpacing="1">
+                    <TableView ItemsSource="{Binding Session.State.ComponentDefs}" Grid.Column="0">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Name}"/>
+                            <TableViewColumn Header="Type" Binding="{Binding Type}" Width="80" />
+                            <TableViewColumn Header="Price" Binding="{Binding Price}" Width="50" />
+                            <TableViewColumn Header="Mass" Binding="{Binding Mass}" Width="50" />
+                            <TableViewColumn Header="Description" Binding="{Binding Description}"/>
+                        </TableView.Columns>
+                    </TableView>
+                    <TableView ItemsSource="{Binding Session.State.Inventory}" Grid.Column="1">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Def.Name}"/>
+                            <TableViewColumn Header="Type" Binding="{Binding Def.Type}"/>
+                            <TableViewColumn Header="Damaged" Binding="{Binding Damaged}"/>
+                        </TableView.Columns>
+                    </TableView>
+                    <Grid RowDefinitions="Auto,*" Grid.Column="2">
+                    <TableView ItemsSource="{Binding Session.State.Spacecrafts}" Grid.Row="0">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Name}" />
+                            <TableViewColumn Header="Mass" Binding="{Binding Mass}" />
+                            <TableViewColumn Header="Location" Binding="{Binding Location.Name}" />
+                        </TableView.Columns>
+                    </TableView>
+                    <TableView ItemsSource="{Binding SelectedSpacecraft.Components}" Grid.Row="1">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Def.Name}"/>
+                            <TableViewColumn Header="Type" Binding="{Binding Def.Type}"/>
+                            <TableViewColumn Header="Damaged" Binding="{Binding Damaged}"/>
+                        </TableView.Columns>
+                    </TableView>
+                    </Grid>
+                </Grid>
+                
+                <Grid ColumnDefinitions="*,300,*" ColumnSpacing="1">
+                    <TableView ItemsSource="{Binding Session.State.Researches}" Grid.Column="0">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Name}" />
+                            <TableViewColumn Header="Status" Binding="{Binding ResearchedStatus}"  Width="120" />
+                            <TableViewColumn Header="Price" Binding="{Binding Price}"  Width="50" />
+                            <TableViewColumn Header="Description" Binding="{Binding Description}" />
+                        </TableView.Columns>
+                    </TableView>
+                
+                    <TableView ItemsSource="{Binding Session.State.Locations}" Grid.Column="1">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Name}"/>
+                            <TableViewColumn Header="Type" Binding="{Binding Type}"  Width="70" />
+                            <TableViewColumn Header="Explored" Binding="{Binding Explored}"  Width="70" />
+                        </TableView.Columns>
+                    </TableView>
 
-                <TableView ItemsSource="{Binding Components}">
-                    <TableView.Columns>
-                        <TableViewColumn Header="Name" Binding="{Binding Name}"/>
-                        <TableViewColumn Header="Type" Binding="{Binding Type}"/>
-                        <TableViewColumn Header="Quantity" Binding="{Binding Quantity}"/>
-                        <TableViewColumn Header="Price" Binding="{Binding Price}"/>
-                        <TableViewColumn Header="Mass" Binding="{Binding Mass}"/>
-                        <TableViewColumn Header="Description" Binding="{Binding Description}"/>
-                    </TableView.Columns>
-                </TableView>
-
-                <TableView ItemsSource="{Binding Locations}">
-                    <TableViewColumn Header="Name" Binding="{Binding Name}"/>
-                    <TableViewColumn Header="Type" Binding="{Binding Type}"/>
-                    <TableViewColumn Header="Explored" Binding="{Binding Explored}"/>
-                </TableView>
-
-                <TableView ItemsSource="{Binding Routes}">
-                    <TableViewColumn Header="Source" Binding="{Binding Source}"/>
-                    <TableViewColumn Header="Destination" Binding="{Binding Destination}"/>
-                    <TableViewColumn Header="Difficulty" Binding="{Binding Difficulty}"/>
-                    <TableViewColumn Header="Years" Binding="{Binding Years}"/>
-                    <TableViewColumn Header="Description" Binding="{Binding Description}"/>
-                </TableView>
+                    <TableView ItemsSource="{Binding Session.State.Routes}" Grid.Column="2">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Source" Binding="{Binding Source.Name}"/>
+                            <TableViewColumn Header="Destination" Binding="{Binding Destination.Name}"/>
+                            <TableViewColumn Header="Difficulty" Binding="{Binding Difficulty}" Width="50"/>
+                            <TableViewColumn Header="Years" Binding="{Binding Years}"  Width="50" />
+                            <TableViewColumn Header="Description" Binding="{Binding Description}"/>
+                        </TableView.Columns>
+                    </TableView>
+                </Grid>
             </StackPanel>
 
             <!-- <TableView ItemsSource="{Binding Countries}">
