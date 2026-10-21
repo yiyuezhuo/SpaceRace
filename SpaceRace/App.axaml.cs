@@ -4,6 +4,8 @@ using Avalonia.Markup.Xaml;
 using SpaceRace.ViewModels;
 using SpaceRace.Views;
 
+using SpaceRace.Models;
+
 namespace SpaceRace;
 
 public partial class App : Application
@@ -18,22 +20,24 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var gameSession = new GameSession();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel()
+                DataContext = new MainViewModel(gameSession)
             };
         }
         else if (ApplicationLifetime is IActivityApplicationLifetime singleViewFactoryApplicationLifetime)
         {
-            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView { DataContext = new MainViewModel() };
+            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView { DataContext = new MainViewModel(gameSession) };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
             singleViewPlatform.MainView = new MainView
             {
-                DataContext = new MainViewModel()
+                DataContext = new MainViewModel(gameSession)
             };
         }
 

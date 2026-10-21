@@ -12,7 +12,67 @@
         <vm:MainViewModel />
     </Design.DataContext>
 
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+    <ScrollViewer>
+        <StackPanel>
+            <!-- <TextBox Text="{Binding Greeting}"
+                    HorizontalAlignment="Center"
+            VerticalAlignment="Center" /> -->
+            
+            <StackPanel DataContext="{Binding Session.State}">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <TextBlock Text="Year:" />
+                    <TextBlock Text="{Binding Year}" />
+                    <TextBlock Text="Funds:" />
+                    <TextBlock Text="{Binding Funds}" />
+                    <TextBlock Text="Score:" />
+                    <TextBlock Text="{Binding Score}" />
+                </StackPanel>
+
+                <TableView ItemsSource="{Binding Researches}">
+                    <TableView.Columns>
+                        <TableViewColumn Header="Name" Binding="{Binding Name}" />
+                        <TableViewColumn Header="Status" Binding="{Binding ResearchedStatus}"/>
+                        <TableViewColumn Header="Price" Binding="{Binding Price}" />
+                        <TableViewColumn Header="Description" Binding="{Binding Description}" />
+                    </TableView.Columns>
+                </TableView>
+
+                <TableView ItemsSource="{Binding Components}">
+                    <TableView.Columns>
+                        <TableViewColumn Header="Name" Binding="{Binding Name}"/>
+                        <TableViewColumn Header="Type" Binding="{Binding Type}"/>
+                        <TableViewColumn Header="Quantity" Binding="{Binding Quantity}"/>
+                        <TableViewColumn Header="Price" Binding="{Binding Price}"/>
+                        <TableViewColumn Header="Mass" Binding="{Binding Mass}"/>
+                        <TableViewColumn Header="Description" Binding="{Binding Description}"/>
+                    </TableView.Columns>
+                </TableView>
+
+                <TableView ItemsSource="{Binding Locations}">
+                    <TableViewColumn Header="Name" Binding="{Binding Name}"/>
+                    <TableViewColumn Header="Type" Binding="{Binding Type}"/>
+                    <TableViewColumn Header="Explored" Binding="{Binding Explored}"/>
+                </TableView>
+
+                <TableView ItemsSource="{Binding Routes}">
+                    <TableViewColumn Header="Source" Binding="{Binding Source}"/>
+                    <TableViewColumn Header="Destination" Binding="{Binding Destination}"/>
+                    <TableViewColumn Header="Difficulty" Binding="{Binding Difficulty}"/>
+                    <TableViewColumn Header="Years" Binding="{Binding Years}"/>
+                    <TableViewColumn Header="Description" Binding="{Binding Description}"/>
+                </TableView>
+            </StackPanel>
+
+            <!-- <TableView ItemsSource="{Binding Countries}">
+                <TableView.Columns>
+                    <TableViewColumn Header="Name" Binding="{Binding Name}" />
+                    <TableViewColumn Header="Region" Binding="{Binding Region}" />
+                    <TableViewColumn Header="Population"
+                                    Binding="{Binding Population, StringFormat=N0}"
+                                    HorizontalContentAlignment="Right" />
+                </TableView.Columns>
+            </TableView> -->
+        </StackPanel>
+    </ScrollViewer>
+
 </UserControl>

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace SpaceRace.Models;
 
-public class ModelState : ObservableObject
+public class GameState : ObservableObject
 {
-    public int year = 1956;
-    public int funds = 25;
-    public int score = 0;
+    public int Year{get;set;} = 1956;
+    public int Funds{get;set;} = 25;
+    public int Score{get;set;} = 0;
 
     public ObservableCollection<Research> Researches { get; } = new()
     {
@@ -56,9 +56,9 @@ public class ModelState : ObservableObject
     };
 
     public ObservableCollection<Location> Locations { get; } = new();
-    public List<Route> routes = new();
+    public List<Route> Routes{get;} = new();
 
-    public ModelState()
+    public GameState()
     {
         // Earth
         Location Earth = new(){Name="Earth", IsHome=true, Explored=true};
@@ -97,7 +97,7 @@ public class ModelState : ObservableObject
             InnerPlanetsTransfer // Inner Planets Transfer
         };
 
-        routes = new()
+        Routes = new()
         {
             Route.Make(Earth, SuborbitalFlight, 3, hasAstronautIncapacitedCheck: true),
             Route.Make(Earth, EarthOrbit, 8, hasAstronautIncapacitedCheck: true),

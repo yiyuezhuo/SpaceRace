@@ -11,9 +11,9 @@ public enum LocationType
 
 public class Location
 {
-    public string Name = "";
-    public LocationType Type;
-    public bool IsHome; // Earth
-    public bool Explored;
+    public string Name{get;set;} = "";
+    public LocationType Type{get;set;}
+    public bool IsHome{get;set;} // Earth
+    public bool Explored{get;set;}
     // variant (Mars, Moon variant, supply, sample etc)
 }

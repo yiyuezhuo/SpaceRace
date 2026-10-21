@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.Generic;
 
 namespace SpaceRace.Models;
 
@@ -22,22 +23,58 @@ public enum BuildableTag
 
 public class Component
 {
-    public string Name = "";
-    public ComponentType Type;
-    public BuildableTag Tag = BuildableTag.None;
-    public bool IsOneshot = false;
-    public int Quantity = 0;
-    public int Price = 1;
-    public int Mass = 1;
-    public int Thrust = 0;
-    public bool Surveyable = false;
-    public int Seats = 0;
-    public bool HasHeatShield = false;
-    public int RadiationModifier = 0;
-    public bool IsDoctor = false;
-    public bool IsMechanic = false;
-    public bool IsPilot = false;
-    public bool damaged = false;
+    public string Name{get;set;} = "";
+    public ComponentType Type{get;set;}
+    public BuildableTag Tag{get;set;} = BuildableTag.None;
+    public bool IsOneshot{get;set;} = false;
+    public int Quantity{get;set;} = 0;
+    public int Price{get;set;} = 1;
+    public int Mass{get;set;} = 1;
+    public int Thrust{get;set;} = 0;
+    public bool Surveyable{get;set;} = false;
+    public int Seats{get;set;} = 0;
+    public bool HasHeatShield{get;set;} = false;
+    public int RadiationModifier{get;set;} = 0;
+    public bool IsDoctor{get;set;} = false;
+    public bool IsMechanic{get;set;} = false;
+    public bool IsPilot{get;set;} = false;
+    public bool Damaged{get;set;} = false;
+
+    public string Description
+    {
+        get
+        {
+            var words = new List<string>();
+            if(IsOneshot)
+            {
+                words.Add($"One-Shot");
+            }
+            if(Thrust > 0)
+            {
+                words.Add($"Thrust: {Thrust}");
+            }
+            if(Surveyable)
+            {
+                words.Add($"Surveyable");
+            }
+            if(Seats > 0)
+            {
+                words.Add($"Seats: {Seats}");
+            }
+            if(HasHeatShield)
+            {
+                words.Add("Heat Shield");
+            }
+            if(RadiationModifier != 0)
+            {
+                words.Add($"Radiation Modifier: {RadiationModifier}");
+            }
+            if(IsDoctor) words.Add("Doctor");
+            if(IsMechanic) words.Add("Mechanic");
+            if(IsPilot) words.Add("Pilot");
+            return string.Join(", ", words);
+        }
+    }
 
     public static Component MakeThruster(string name, BuildableTag tag, int mass, int price, int thrust, bool isOneshot = true)
     {
@@ -45,7 +82,6 @@ public class Component
         {
             Name=name,
             Type=ComponentType.Device,
-            Surveyable = true,
             Tag=tag,
             Mass=mass,
             Price=price,
