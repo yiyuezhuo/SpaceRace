@@ -3,8 +3,19 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using Avalonia.Controls.Embedding.Offscreen;
 
 namespace SpaceRace.Models;
+
+public class PrepareManeuverState
+{
+    public required Spacecraft Spacecraft;
+    public required Route Route;
+    public required int StartMass;
+    public required int TargetYears;
+    public int AppliedThrust;
+}
 
 public class GameState : ObservableObject
 {
@@ -61,8 +72,13 @@ public class GameState : ObservableObject
     public List<Component> Inventory{get;} = new();
     public List<Spacecraft> Spacecrafts{get;} = new();
 
+    public List<string> Logs{get;} = new();
+
     public Dictionary<string, Location> NameToLocation = new();
     public Dictionary<Location, Dictionary<Location, Route>> SourceToDestinationToRoute = new();
+    int spacecraftCreated = 0;
+
+    public PrepareManeuverState? PrepareManeuverState{get;set;} 
 
     public GameState()
     {
@@ -161,5 +177,256 @@ public class GameState : ObservableObject
             SourceToDestinationToRoute[grouping.Key] = grouping.ToDictionary(r => r.Destination, r => r);
         }
 
+    }
+
+    // IEnumerable<Component> IterComponents()
+    // {
+    //     foreach(var component in Inventory)
+    //         yield return component;
+    //     foreach(var spacecraft in Spacecrafts)
+    //     {
+    //         foreach(var component in spacecraft.Components)
+    //             yield return component;
+    //     }
+    // }
+
+    public void NextTurnHousekeeping()
+    {
+        // Restore funds
+        Funds = 25;
+
+        foreach(var component in Inventory)
+        {
+            component.Used = false;
+            component.Damaged = false;
+        }
+
+        foreach(var spacecraft in Spacecrafts)
+        {
+            if(spacecraft.Location.IsHome)
+            {
+                foreach(var component in spacecraft.Components)
+                {
+                    component.Used = false;
+                    component.Damaged = false;
+                }
+            }
+            else // Spacecraft in non-home location
+            {
+                foreach(var component in spacecraft.Components)
+                {
+                    component.Used = false;
+                }
+
+                // non-dmaged Doctor restore other damaged astronaut
+                var hasEffDoctor = spacecraft.Components.Any(c => c.Def.IsDoctor && !c.Damaged);
+                foreach(var astronaut in spacecraft.IterAstronaut())
+                {
+                    if(astronaut.Damaged)
+                    {
+                        if(hasEffDoctor)
+                        {
+                            astronaut.Damaged = false;
+                        }
+                        else
+                        {
+                            DestroyComponent(spacecraft, astronaut);
+                        }
+                    }
+                }
+            }
+
+            // Fly-By spacecraft without current route lost
+            if(spacecraft.Location.Type == LocationType.FlyBy && spacecraft.MoveState == null)
+            {
+                DestroySpacecraft(spacecraft);
+            }
+
+            // Update MoveState
+            if(spacecraft.MoveState != null)
+            {
+                spacecraft.MoveState.ElapsedYears += 1;
+                if(spacecraft.MoveState.ElapsedYears >= spacecraft.MoveState.RequiredYears) // Complete the movement
+                {
+                    spacecraft.Location = spacecraft.MoveState.Route.Destination;
+                    spacecraft.MoveState = null;
+                }
+            }
+        }
+    }
+
+    void DestroyComponent(Spacecraft spacecraft, Component component)
+    {
+        if(component.Def.Type == ComponentType.Astronaut)
+        {
+            Score -= 2;
+            Logs.Add($"{component.Def.Name} Kill, -2 score");
+        }
+        spacecraft.Components.Remove(component);
+    }
+
+    void DestroySpacecraft(Spacecraft spacecraft) // rocket fatal failure or fly-by lost
+    {
+        foreach(var component in spacecraft.Components.ToList())
+        {
+            DestroyComponent(spacecraft, component);
+        }
+
+        Spacecrafts.Remove(spacecraft);
+    }
+
+    void DisassembleSpacecraft(Spacecraft spacecraft)
+    {
+        if(!spacecraft.Location.IsHome)
+            return;
+        
+        Spacecrafts.Remove(spacecraft);
+        Inventory.AddRange(spacecraft.Components);
+    }
+
+    void AssembleSpacecraft(IEnumerable<Component> _components)
+    {
+        var components = _components.ToList();
+
+        var inventorySet = Inventory.ToHashSet();
+        if(components.Any(c => !inventorySet.Contains(c)))
+            return;
+
+        foreach(var component in components)
+        {
+            Inventory.Remove(component);
+        }
+        CreateSpacecraft(components, Locations.First(loc => loc.IsHome));
+    }
+
+    // void DoManeuver(Spacecraft spacecraft, IEnumerable<Component> usedComponents) // Move to destination immediatelly if years == 0 or create a MoveState to move it in later time
+    // {
+    //     // TODO: rocket or thruster check
+    //     // Used rocket => removed & 
+    // }
+
+    public bool CanUsedInManeuver(Component thruster) => !(thruster.Damaged || thruster.Used || thruster.Def.Thrust == 0 || PrepareManeuverState == null || !PrepareManeuverState.Spacecraft.Components.Contains(thruster));
+
+    public void UseThrusterForManeuver(Component thruster, int targetYears)
+    {
+        if(PrepareManeuverState == null)
+            return;
+        if(!CanUsedInManeuver(thruster))
+            return;
+
+        PrepareManeuverState.Spacecraft.Components.Remove(thruster);
+        PrepareManeuverState.AppliedThrust += thruster.Def.Thrust * targetYears;
+    }
+
+    public void StartPrepareManeuver(Spacecraft spacecraft, Route route, int targetYears)
+    {
+        PrepareManeuverState = new()
+        {
+            Spacecraft=spacecraft,
+            Route=route,
+            StartMass=spacecraft.Mass,
+            TargetYears=targetYears,
+            AppliedThrust=0
+        };
+    }
+
+    public void CancelPrepareManeuver()
+    {
+        PrepareManeuverState = null;
+    }
+
+    public bool PrepareManeuverBeginable()
+    {
+        if(PrepareManeuverState == null)
+            return false;
+        return PrepareManeuverState.AppliedThrust >= PrepareManeuverState.StartMass * PrepareManeuverState.Route.Difficulty;
+    }
+
+    public void BeginPrepareManeuver()
+    {
+        if(PrepareManeuverState == null)
+            return;
+        if(!PrepareManeuverBeginable())
+            return;
+        
+        if(PrepareManeuverState.Route.Years == 0)
+        {
+            PrepareManeuverState.Spacecraft.Location = PrepareManeuverState.Route.Destination;
+        }
+        else
+        {
+            PrepareManeuverState.Spacecraft.MoveState = new()
+            {
+                Route=PrepareManeuverState.Route,
+                ElapsedYears=0,
+                RequiredYears=PrepareManeuverState.TargetYears
+            };
+
+            PrepareManeuverState = null;
+        }
+    }
+
+    Spacecraft CreateSpacecraft(List<Component> components, Location location)
+    {
+        var spacecraft = new Spacecraft()
+        {
+            Name = $"Spacecraft #{spacecraftCreated+1}",
+            Components=components,
+            Location = location
+        };
+        Spacecrafts.Add(spacecraft);
+        
+        spacecraftCreated++;
+        
+        return spacecraft;
+    }
+
+    public void SeparateSpacecraft(Spacecraft oriSpacecraft, List<Component> components)
+    {
+        // TODO: Rendezvous research & related check
+
+        if(components.Any(c => !oriSpacecraft.Components.Contains(c)))
+            return;
+
+        foreach(var component in components)
+        {
+            oriSpacecraft.Components.Remove(component);
+        }
+
+        CreateSpacecraft(components, oriSpacecraft.Location);
+    }
+
+    public void DockSpacecraft(Spacecraft keepedSpacecraft, Spacecraft mergedSpacecraft)
+    {
+        // TODO: Rendezvous research & related check
+
+        var components = mergedSpacecraft.Components.ToList();
+        foreach(var component in components)
+        {
+            mergedSpacecraft.Components.Remove(component);
+            keepedSpacecraft.Components.Add(component);
+        }
+        Spacecrafts.Remove(mergedSpacecraft);
+    }
+
+    public bool CanBuyComponent(ComponentDef componentDef)
+    {
+        // TODO: Add detailed explaination for invalid buy here?
+        if(componentDef.Price > Funds)
+            return false;
+        if(componentDef.Tag != BuildableTag.None && !Researches.Any(r => r.Unlocks.Contains(componentDef.Tag)))
+            return false;
+        return true;
+    }
+
+    public void BuyComponent(ComponentDef componentDef)
+    {
+        if(!CanBuyComponent(componentDef))
+            return;
+        Funds -= componentDef.Price;
+        Inventory.Add(new()
+        {
+            Def=componentDef,
+        });
     }
 }

@@ -123,4 +123,5 @@ public class Component
 {
     public required ComponentDef Def{get;set;}
     public bool Damaged{get;set;}
+    public bool Used{get;set;} // Ion Thruster
 }
