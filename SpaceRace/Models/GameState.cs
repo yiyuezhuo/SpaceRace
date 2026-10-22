@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SpaceRace.Models;
 
@@ -59,6 +60,9 @@ public class GameState : ObservableObject
     public List<Route> Routes{get;} = new();
     public List<Component> Inventory{get;} = new();
     public List<Spacecraft> Spacecrafts{get;} = new();
+
+    public Dictionary<string, Location> NameToLocation = new();
+    public Dictionary<Location, Dictionary<Location, Route>> SourceToDestinationToRoute = new();
 
     public GameState()
     {
@@ -149,6 +153,13 @@ public class GameState : ObservableObject
             Route.Make(InnerPlanetsTransfer, VenusFlyBy, 2, years: 1, hasRadiation: true),
             Route.Make(InnerPlanetsTransfer, Ceres, 5, years: 1, hasRadiation: true, isLanding: true),
         };
+
+        // Create Index
+        NameToLocation = Locations.ToDictionary(l => l.Name, l => l);
+        foreach(var grouping in Routes.GroupBy(r => r.Source))
+        {
+            SourceToDestinationToRoute[grouping.Key] = grouping.ToDictionary(r => r.Destination, r => r);
+        }
 
     }
 }

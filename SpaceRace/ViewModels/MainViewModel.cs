@@ -4,6 +4,7 @@ using SpaceRace.Models;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
+using System;
 
 
 namespace SpaceRace.ViewModels;
@@ -36,4 +37,9 @@ public partial class MainViewModel : ViewModelBase
     //     new("Albania", "Eastern Europe", 3581655),
     //     new("Algeria", "Northern Africa", 32930091),
     // ];
+
+    public void SelectLocation(Location location)
+    {
+        Console.WriteLine($"Select Location: {location}");
+    }
 }

@@ -16,4 +16,9 @@ public class Location
     public bool IsHome{get;set;} // Earth
     public bool Explored{get;set;}
     // variant (Mars, Moon variant, supply, sample etc)
+
+    public override string ToString()
+    {
+        return $"Location({Name})";
+    }
 }
