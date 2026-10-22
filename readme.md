@@ -1,3 +1,11 @@
+# Leaving Earth
+
+Digitation of Joseph Fatula's [Leaving Earth](https://boardgamegeek.com/boardgame/173064/leaving-earth). Submission to HAGJ 13.
+
+Map style is inspired by: https://www.rmg.co.uk/stories/space-astronomy/origin-solar-system
+
+## Usage
+
 Build WASM:
 
 In SpaceRace.Browser

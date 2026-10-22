@@ -110,7 +110,7 @@ public class GameState : ObservableObject
             Route.Make(EarthOrbit, LunarFlyBy, 1),
             Route.Make(EarthOrbit, MarsOrbit, 5, years: 3, hasRadiation: true),
             Route.Make(EarthOrbit, MarsFlyBy, 3, years: 3, hasRadiation: true),
-            Route.Make(EarthOrbit, InnerPlanetsTransfer, 3, hasRadiation: true),
+            Route.Make(EarthOrbit, InnerPlanetsTransfer, 3, hasRadiation: true, years: 1),
 
             Route.Make(LunarFlyBy, LunarOrbit, 2),
             Route.Make(LunarFlyBy, EarthOrbit, 1),

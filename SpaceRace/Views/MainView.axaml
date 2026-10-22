@@ -19,15 +19,34 @@
             VerticalAlignment="Center" /> -->
             
             <StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="Year:" />
-                    <TextBlock Text="{Binding Session.State.Year}" />
-                    <TextBlock Text="Funds:" />
-                    <TextBlock Text="{Binding Session.State.Funds}" />
-                    <TextBlock Text="Score:" />
-                    <TextBlock Text="{Binding Session.State.Score}" />
-                </StackPanel>
+                
+                <Grid ColumnDefinitions="*,200">
+                    <Svg Path="/Assets/Sol2.svg" 
+                        Grid.Column="0" />
+                    <StackPanel Orientation="Vertical" Spacing="5" Grid.Column="1">
+                        <Button>Next Turn</Button>
+                        <!-- <TextBlock Text="Year:" />
+                        <TextBlock Text="{Binding Session.State.Year}" />
+                        <TextBlock Text="Funds:" />
+                        <TextBlock Text="{Binding Session.State.Funds}" />
+                        <TextBlock Text="Score:" />
+                        <TextBlock Text="{Binding Session.State.Score}" /> -->
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                            <TextBlock Text="Year:" Grid.Column="0" Grid.Row="0" />
+                            <TextBlock Text="{Binding Session.State.Year}" Grid.Column="1" Grid.Row="0" />
+                            <TextBlock Text="Funds:" Grid.Column="0" Grid.Row="1" />
+                            <TextBlock Text="{Binding Session.State.Funds}" Grid.Column="1" Grid.Row="1" />
+                            <TextBlock Text="Score:" Grid.Column="0" Grid.Row="2" />
+                            <TextBlock Text="{Binding Session.State.Score}" Grid.Column="1" Grid.Row="2" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                            <Button Grid.Column="0">Research</Button>
+                            <Button Grid.Column="1">Buy Comp.</Button>
+                            <Button Grid.Column="0" Grid.Row="1">Inventory</Button>
+                        </Grid>
 
+                    </StackPanel>
+                </Grid>
                 
                 <Grid ColumnDefinitions="2*,*,*" ColumnSpacing="1">
                     <TableView ItemsSource="{Binding Session.State.ComponentDefs}" Grid.Column="0">
