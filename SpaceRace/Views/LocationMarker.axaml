@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SpaceRace.ViewModels"
+             x:Class="SpaceRace.Views.LocationMarker"
+             Width="12" Height="12">
+        
+    <Grid>
+        <Ellipse x:Name="SelectedEllipse" Stroke="#FBBF24" StrokeThickness="0.6" IsVisible="False" />
+        <Border x:Name="CountBadge" Background="#172033" CornerRadius="1" Padding="0.6,0" IsVisible="False">
+            <TextBlock x:Name="CountText" FontSize="3" Foreground="White" />
+        </Border>
+    </Grid>
+
+</UserControl>
