@@ -42,4 +42,16 @@ public partial class MainViewModel : ViewModelBase
     {
         Console.WriteLine($"Select Location: {location}");
     }
+
+    [RelayCommand]
+    void OpenResearchDialog()
+    {
+        Console.WriteLine("OpenResearchDialog");
+    }
+
+    [RelayCommand]
+    void OpenInventoryDialog()
+    {
+        Console.WriteLine("OpenInventoryDialog");
+    }
 }
