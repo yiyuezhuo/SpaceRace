@@ -16,7 +16,7 @@
     <Border Background="{DynamicResource SystemRegionColor}">
         <Grid RowDefinitions="Auto,*,Auto">
             <TextBlock Text="Research" Grid.Row="0" Padding="4, 2" FontSize="20" FontWeight="Bold" />
-            <TableView ItemsSource="{Binding Session.State.Researches}" Grid.Row="1">
+            <TableView ItemsSource="{Binding Session.State.Researches}" SelectedItem="{Binding SelectedResearch, Mode=TwoWay}" SelectionMode="Single" Grid.Row="1">
                 <TableView.Columns>
                     <TableViewColumn Header="Name" Binding="{Binding Name}" />
                     <TableViewColumn Header="Status" Binding="{Binding ResearchedStatus}"  Width="120" />
@@ -26,8 +26,8 @@
             </TableView>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2">
-                <Button>Cancel</Button>
-                <Button>Research</Button>
+                <Button Command="{Binding CloseResearchDialogCommand}">Close</Button>
+                <Button Command="{Binding ResearchCommand}">Research</Button>
             </StackPanel>
         </Grid>
     </Border>

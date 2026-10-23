@@ -17,11 +17,16 @@ public class PrepareManeuverState
     public int AppliedThrust;
 }
 
-public class GameState : ObservableObject
+public partial class GameState : ObservableObject
 {
-    public int Year{get;set;} = 1956;
-    public int Funds{get;set;} = 25;
-    public int Score{get;set;} = 0;
+    [ObservableProperty]
+    int year = 1956;
+
+    [ObservableProperty]
+    int funds = 25;
+
+    [ObservableProperty]
+    int score = 0;
 
     public ObservableCollection<Research> Researches { get; } = new()
     {
@@ -69,8 +74,8 @@ public class GameState : ObservableObject
 
     public ObservableCollection<Location> Locations { get; } = new();
     public List<Route> Routes{get;} = new();
-    public List<Component> Inventory{get;} = new();
-    public List<Spacecraft> Spacecrafts{get;} = new();
+    public ObservableCollection<Component> Inventory{get;} = new();
+    public ObservableCollection<Spacecraft> Spacecrafts{get;} = new();
 
     public List<string> Logs{get;} = new();
 
@@ -192,6 +197,8 @@ public class GameState : ObservableObject
 
     public void NextTurnHousekeeping()
     {
+        Year++; // TODO: Handle Game End
+
         // Restore funds
         Funds = 25;
 
@@ -281,10 +288,14 @@ public class GameState : ObservableObject
             return;
         
         Spacecrafts.Remove(spacecraft);
-        Inventory.AddRange(spacecraft.Components);
+        // Inventory.AddRange(spacecraft.Components);
+        foreach(var component in spacecraft.Components)
+        {
+            Inventory.Add(component);
+        }
     }
 
-    void AssembleSpacecraft(IEnumerable<Component> _components)
+    public void AssembleSpacecraft(IEnumerable<Component> _components)
     {
         var components = _components.ToList();
 
@@ -414,7 +425,7 @@ public class GameState : ObservableObject
         // TODO: Add detailed explaination for invalid buy here?
         if(componentDef.Price > Funds)
             return false;
-        if(componentDef.Tag != BuildableTag.None && !Researches.Any(r => r.Unlocks.Contains(componentDef.Tag)))
+        if(componentDef.Tag != BuildableTag.None && !Researches.Any(r => r.Researched && r.Unlocks.Contains(componentDef.Tag)))
             return false;
         return true;
     }
@@ -428,5 +439,19 @@ public class GameState : ObservableObject
         {
             Def=componentDef,
         });
+    }
+
+    public bool IsResearchable(Research research)
+    {
+        return Funds >= research.Price && !research.Researched;
+    }
+
+    public void DoResearch(Research research)
+    {
+        if(!IsResearchable(research))
+            return;
+        
+        Funds -= research.Price;
+        research.Researched = true;
     }
 }

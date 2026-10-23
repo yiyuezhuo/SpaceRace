@@ -14,14 +14,9 @@
     </Design.DataContext>
                 
     <Grid>
-        <Grid ColumnDefinitions="*,200">
-            <ScrollViewer Grid.Column="0">
-                <Svg Path="/Assets/Sol2.svg"
-                    PointerPressed="Map_OnPointerPressed"
-                    />
-            </ScrollViewer>
-            <StackPanel Orientation="Vertical" Spacing="5" Grid.Column="1">
-                <Button>Next Turn</Button>
+        <DockPanel>
+            <StackPanel Orientation="Vertical" Spacing="5" DockPanel.Dock="Right" Width="200">
+                <Button Command="{Binding DoNextTurnCommand}">Next Turn</Button>
                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
                     <TextBlock Text="Year:" Grid.Column="0" Grid.Row="0" />
                     <TextBlock Text="{Binding Session.State.Year}" Grid.Column="1" Grid.Row="0" />
@@ -34,12 +29,18 @@
                     <Button Grid.Row="0" Command="{Binding OpenResearchDialogCommand}">Research</Button>
                     <Button Grid.Row="1" Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
                 </Grid>
-
+                <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
             </StackPanel>
-        </Grid>
 
-        <local:ResearchDialog MaxWidth="600" MaxHeight="500" IsVisible="false" />
-        <local:InventoryDialog MaxWidth="800" MaxHeight="500"  />
+            <ScrollViewer>
+                <Svg Path="/Assets/Sol2.svg"
+                    PointerPressed="Map_OnPointerPressed"
+                    />
+            </ScrollViewer>
+        </DockPanel>
+
+        <local:ResearchDialog MaxWidth="600" MaxHeight="500" IsVisible="{Binding IsResearchDialogOpen}" />
+        <local:InventoryDialog MaxWidth="800" MaxHeight="500" IsVisible="{Binding IsInventoryDialogOpen}"  />
     </Grid>
     
     <!--

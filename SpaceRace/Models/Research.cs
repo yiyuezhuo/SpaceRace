@@ -7,7 +7,11 @@ public partial class Research : ObservableObject
 {
     public string Name {get; init;} = "";
     public int Price{get;set;} = 10;
-    public bool Reseached{get; init;} = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResearchedStatus))]
+    public bool researched;
+
     public HashSet<BuildableTag> Unlocks = new();
     public bool EnableRendezvous = false;
     public bool EnableReEntry = false;
@@ -38,5 +42,5 @@ public partial class Research : ObservableObject
         }
     }
 
-    public string ResearchedStatus => Reseached ? "Researched" : "Not Researched";
+    public string ResearchedStatus => Researched ? "Researched" : "Not Researched";
 }
