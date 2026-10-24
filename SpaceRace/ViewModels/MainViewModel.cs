@@ -17,7 +17,7 @@ public partial class MainViewModel : ViewModelBase
 {
     public GameSession Session{get;} = new();
 
-    public Spacecraft? SelectedSpacecraft{get;set;} = null;
+    // public Spacecraft? SelectedSpacecraft{get;set;} = null;
 
     // [ObservableProperty]
     // public partial string Greeting { get; set; } = "Welcome to Avalonia!";
@@ -51,7 +51,16 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LocationDescription))]
+    [NotifyPropertyChangedFor(nameof(SpacecraftsOfSelectedLocation))]
     Location? selectedLocation;
+
+    [ObservableProperty]
+    Spacecraft? selectedSpacecraft;
+
+    public List<Spacecraft> SpacecraftsOfSelectedLocation
+    {
+        get => Session.State.Spacecrafts.Where(s => s.Location == SelectedLocation).ToList();
+    }
 
     public void SelectLocation(Location location)
     {
@@ -162,7 +171,10 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DoPurchaseComponentCommand))]
-    ComponentDef? selectedComponentDef;    
+    ComponentDef? selectedComponentDef;
+
+    public ObservableCollection<Component> SelectedComponentsOfSelectedSpacecraft{get;} = new();
+    public int MassOfSelectedComponentsOfSelectedSpacecraft => SelectedComponentsOfSelectedSpacecraft.Sum(c => c.Def.Mass);
 
     // public SelectionModel<Component> InventoryComponentSelection{get;} = new(){SingleSelect = false};
     public ObservableCollection<Component> SelectedInventoryComponents{get;} = new();

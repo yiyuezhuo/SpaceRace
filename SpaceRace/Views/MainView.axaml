@@ -26,11 +26,44 @@
                     <TextBlock Text="{Binding Session.State.Score}" Grid.Column="1" Grid.Row="2" />
                 </Grid>
 
-                <Grid RowDefinitions="Auto,Auto">
+                <!-- <Grid RowDefinitions="Auto,Auto">
                     <Button Grid.Row="0" Command="{Binding OpenResearchDialogCommand}">Research</Button>
                     <Button Grid.Row="1" Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
-                </Grid>
+                </Grid> -->
+
+                <WrapPanel>
+                    <Button Command="{Binding OpenResearchDialogCommand}">Research</Button>
+                    <Button Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
+                </WrapPanel>
+
+
+                <TableView ItemsSource="{Binding SpacecraftsOfSelectedLocation}" SelectedItem="{Binding SelectedSpacecraft}" IsVisible="{Binding !!SelectedLocation}">
+                    <TableView.Columns>
+                        <TableViewColumn Header="Name" Binding="{Binding Name}" />
+                        <TableViewColumn Header="Mass" Binding="{Binding Mass}" Width="50" />
+                    </TableView.Columns>
+                </TableView>
                 
+                <StackPanel IsVisible="{Binding !!SelectedSpacecraft}">
+                    <TextBlock Text="Spacecraft's Component:" />
+                    <ListBox ItemsSource="{Binding SelectedSpacecraft?.Components}" SelectionMode="Multiple" SelectedItems="{Binding SelectedComponentsOfSelectedSpacecraft}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding FullDescription}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <WrapPanel>
+                        <Button>Maneuver</Button>
+                        <Button>Dock</Button>
+                        <Button>Separate</Button>
+                        <Button>Disassemble</Button>
+                        <Button>Repair</Button>
+                        <Button>Heal</Button>
+                    </WrapPanel>
+                </StackPanel>
+
                 <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
             </StackPanel>
 

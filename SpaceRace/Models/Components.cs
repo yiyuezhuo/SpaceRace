@@ -124,4 +124,23 @@ public class Component
     public required ComponentDef Def{get;set;}
     public bool Damaged{get;set;}
     public bool Used{get;set;} // Ion Thruster
+
+    public string FullDescription
+    {
+        get
+        {
+            var words = new List<string>();
+            if(Damaged)
+            {
+                words.Add("Damaged");
+            }
+            if(Used)
+            {
+                words.Add("Used");
+            }
+            if(words.Count == 0)
+                return Def.Name;
+            return $"{Def.Name} ({string.Join(", ", words)})";
+        }
+    }
 }
