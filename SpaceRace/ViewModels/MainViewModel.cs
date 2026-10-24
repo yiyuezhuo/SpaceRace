@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System;
 using Avalonia.Controls.Selection;
 using System.Linq;
+using System.Collections.Specialized;
+using SpaceRace.Views;
 
 
 namespace SpaceRace.ViewModels;
@@ -34,12 +36,19 @@ public partial class MainViewModel : ViewModelBase
     {
         Session = session;
 
+        Session.State.Spacecrafts.CollectionChanged += OnSpacecraftChanged;
+
         // LocationMarkers = Session.State.Locations.ToDictionary(
         //     location => location,
         //     location => new LocationMarkerViewModel(location)
         // );
 
         // RefreshLocationMarkers();
+    }
+
+    void OnSpacecraftChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(SpacecraftsOfSelectedLocation));
     }
 
     // public ObservableCollection<Country> Countries { get; } =
@@ -123,11 +132,37 @@ public partial class MainViewModel : ViewModelBase
         IsInventoryDialogOpen = true;
     }
 
+    [RelayCommand]
+    void OpenMissionDialog()
+    {
+        Console.WriteLine("OpenMissionDialog");
+
+        IsMissionDialogOpen = true;
+    }
+
     [ObservableProperty]
     bool isResearchDialogOpen;
 
     [ObservableProperty]
     bool isInventoryDialogOpen;
+
+    [ObservableProperty]
+    bool isMissionDialogOpen;
+
+    [ObservableProperty]
+    bool isMessageDialogOpen;
+
+    [RelayCommand]
+    void CloseMessageDialog()
+    {
+        IsMessageDialogOpen = false;
+    }
+
+    [RelayCommand]
+    void CloseMissionDialog()
+    {
+        IsMissionDialogOpen = false;
+    }
 
     [RelayCommand]
     void CloseResearchDialog()
@@ -152,6 +187,20 @@ public partial class MainViewModel : ViewModelBase
         Session.State.DoResearch(SelectedResearch);
 
         ResearchCommand.NotifyCanExecuteChanged(); // Not Researched -> Researched may disable the button
+    }
+
+    [ObservableProperty]
+    string messageDialogTitle = "Title";
+    
+    [ObservableProperty]
+    string messageDialogContent = "Content";
+
+    public void ShowMessage(string content="Content", string title="Message")
+    {
+        MessageDialogContent = content;
+        MessageDialogTitle = title;
+
+        IsMessageDialogOpen = true;
     }
 
     bool CanResearch()
@@ -219,6 +268,70 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     void DoNextTurn()
     {
+        if(Session.State.IsGameEnd())
+        {
+            ShowMessage($"Game End, Final Score: {Session.State.Score}");
+            return;
+        }
+        
         Session.State.NextTurnHousekeeping();
+        // Branch End of Game
     }
+
+    [RelayCommand]
+    void DoManeuver()
+    {
+        Console.WriteLine("DoManeuver");
+    }
+
+    [RelayCommand]
+    void DoDock()
+    {
+        Console.WriteLine("DoDock");
+    }
+
+    [RelayCommand]
+    void DoSeparate()
+    {
+        Console.WriteLine("DoSeparate");
+
+        if(SelectedSpacecraft == null || !CanDoSeparate())
+            return;
+
+        Session.State.SeparateSpacecraft(SelectedSpacecraft, SelectedComponentsOfSelectedSpacecraft);
+    }
+
+    bool CanDoSeparate()
+    {
+        return SelectedSpacecraft != null && SelectedComponentsOfSelectedSpacecraft.Count > 0;
+    }
+
+    [RelayCommand(CanExecute =nameof(CanDoDisassemble))]
+    void DoDisassemble()
+    {
+        Console.WriteLine("DoDisassemble");
+
+        if(SelectedSpacecraft == null)
+            return;
+
+        Session.State.DisassembleSpacecraft(SelectedSpacecraft);
+    }
+
+    bool CanDoDisassemble()
+    {
+        if(SelectedLocation == null || SelectedSpacecraft == null)
+            return false;
+
+        return SelectedLocation.IsHome;
+    }
+
+    [RelayCommand(CanExecute =nameof(CanDoRepair))]
+    void DoRepair() => Session.State.DoRepair(SelectedSpacecraft);
+
+    bool CanDoRepair() => Session.State.CanDoRepair(SelectedSpacecraft);
+
+    [RelayCommand(CanExecute =nameof(CanDoHeal))]
+    void DoHeal() => Session.State.DoHeal(SelectedSpacecraft);
+
+    bool CanDoHeal() => Session.State.CanDoHeal(SelectedSpacecraft);
 }

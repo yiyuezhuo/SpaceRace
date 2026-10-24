@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SpaceRace.ViewModels"
+             x:Class="SpaceRace.Views.MessageDialog"
+             x:DataType="vm:MainViewModel"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainViewModel />
+    </Design.DataContext>
+        
+    <Border Background="{DynamicResource SystemRegionColor}">
+        <Grid RowDefinitions="Auto,Auto,Auto">
+            <TextBlock Text="{Binding MessageDialogTitle}" Grid.Row="0" Padding="4, 2" FontSize="20" FontWeight="Bold" />
+            <TextBlock Text="{Binding MessageDialogContent}" Grid.Row="1" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2">
+                <Button Command="{Binding CloseMessageDialogCommand}">Close</Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+
+</UserControl>

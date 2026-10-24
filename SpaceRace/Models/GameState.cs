@@ -23,6 +23,9 @@ public partial class GameState : ObservableObject
     int year = 1956;
 
     [ObservableProperty]
+    int endYear = 1976;
+
+    [ObservableProperty]
     int funds = 25;
 
     [ObservableProperty]
@@ -181,7 +184,11 @@ public partial class GameState : ObservableObject
         {
             SourceToDestinationToRoute[grouping.Key] = grouping.ToDictionary(r => r.Destination, r => r);
         }
+    }
 
+    public bool IsGameEnd()
+    {
+        return Year >= EndYear;
     }
 
     // IEnumerable<Component> IterComponents()
@@ -282,7 +289,7 @@ public partial class GameState : ObservableObject
         Spacecrafts.Remove(spacecraft);
     }
 
-    void DisassembleSpacecraft(Spacecraft spacecraft)
+    public void DisassembleSpacecraft(Spacecraft spacecraft)
     {
         if(!spacecraft.Location.IsHome)
             return;
@@ -377,12 +384,12 @@ public partial class GameState : ObservableObject
         }
     }
 
-    Spacecraft CreateSpacecraft(List<Component> components, Location location)
+    Spacecraft CreateSpacecraft(ICollection<Component> components, Location location)
     {
         var spacecraft = new Spacecraft()
         {
             Name = $"Spacecraft #{spacecraftCreated+1}",
-            Components=components,
+            Components=components.ToList(),
             Location = location
         };
         Spacecrafts.Add(spacecraft);
@@ -392,7 +399,7 @@ public partial class GameState : ObservableObject
         return spacecraft;
     }
 
-    public void SeparateSpacecraft(Spacecraft oriSpacecraft, List<Component> components)
+    public void SeparateSpacecraft(Spacecraft oriSpacecraft, ICollection<Component> components)
     {
         // TODO: Rendezvous research & related check
 
@@ -453,5 +460,73 @@ public partial class GameState : ObservableObject
         
         Funds -= research.Price;
         research.Researched = true;
+    }
+
+    public void DoHeal(Spacecraft? spacecraft)
+    {
+        if(spacecraft == null)
+            return;
+
+        if(!CanDoHeal(spacecraft))
+            return;
+
+        foreach(var component in spacecraft.Components)
+        {
+            if(component.Def.Type == ComponentType.Astronaut)
+            {
+                component.Damaged = false;
+            }
+        }
+    }
+
+    public bool CanDoHeal(Spacecraft? spacecraft)
+    {
+        if(spacecraft == null)
+            return false;
+
+        if(!spacecraft.Components.Any(c => c.Def.Type == ComponentType.Astronaut && c.Damaged))
+            return false;
+        
+        if(!spacecraft.Components.Any(c => !c.Damaged && c.Def.IsDoctor))
+            return false;
+
+        return true;
+    }
+
+    public void DoRepair(Spacecraft? spacecraft)
+    {
+        if(spacecraft == null || !CanDoRepair(spacecraft))
+            return;
+
+        var components = spacecraft.Components;
+
+        foreach(var component in components)
+        {
+            if(component.Def.Type != ComponentType.Astronaut)
+            {
+                component.Damaged = false;
+            }
+        }
+
+        var supply = components.First(c => c.Def.Type == ComponentType.Supply);
+        DestroyComponent(spacecraft, supply);
+    }
+
+    public bool CanDoRepair(Spacecraft? spacecraft)
+    {
+        if(spacecraft == null)
+            return false;
+        var comps = spacecraft.Components;
+
+        if(!comps.Any(c => c.Def.Type != ComponentType.Astronaut && c.Damaged))
+            return false;
+
+        if(!comps.Any(c => !c.Damaged && c.Def.IsMechanic))
+            return false;
+
+        if(!comps.Any(c => c.Def.Type == ComponentType.Supply))
+            return false;
+
+        return true;
     }
 }
