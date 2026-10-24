@@ -22,6 +22,8 @@ public partial class MainViewModel : ViewModelBase
     // [ObservableProperty]
     // public partial string Greeting { get; set; } = "Welcome to Avalonia!";
 
+    // public Dictionary<Location, LocationMarkerViewModel> LocationMarkers{get;}
+
 
     public MainViewModel()
     {
@@ -31,6 +33,13 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel(GameSession session)
     {
         Session = session;
+
+        // LocationMarkers = Session.State.Locations.ToDictionary(
+        //     location => location,
+        //     location => new LocationMarkerViewModel(location)
+        // );
+
+        // RefreshLocationMarkers();
     }
 
     // public ObservableCollection<Country> Countries { get; } =

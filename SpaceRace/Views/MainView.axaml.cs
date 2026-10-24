@@ -1,9 +1,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using SpaceRace.ViewModels;
 using Svg.Skia;
 
@@ -14,6 +17,10 @@ public partial class MainView : UserControl
     public MainView()
     {
         InitializeComponent();
+
+        _mapRefreshTimer.Tick += (_,_) => RefreshLocationMarkers();
+
+        _mapRefreshTimer.Start();
     }
 
     void Map_OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -34,7 +41,7 @@ public partial class MainView : UserControl
         foreach(var hit in svg.HitTestElements(position))
         {
             // Console.WriteLine($"hit={hit}");
-            hit.CustomAttributes.TryGetValue("http://www.inkscape.org/namespaces/inkscape:label", out var name);
+            hit.CustomAttributes.TryGetValue(inkscapeLabelKey, out var name);
             // Console.WriteLine($"name={name}");
             if(name != null && vm.Session.State.NameToLocation.TryGetValue(name, out var location))
             {
@@ -43,9 +50,9 @@ public partial class MainView : UserControl
         }
     }
 
-    Dictionary<Location, LocationMarker> _markers = new();
+    Dictionary<Models.Location, LocationMarker> _markers = new();
 
-    void AddLocationMarker(Location location, double x, double y)
+    void AddLocationMarker(Models.Location location, double x, double y)
     {
         var marker = new LocationMarker();
 
@@ -56,13 +63,77 @@ public partial class MainView : UserControl
         _markers.Add(location, marker);
     }
 
+    const string inkscapeLabelKey = "http://www.inkscape.org/namespaces/inkscape:label";
+
     bool locationMarkersInitialized = false;
 
     void EnsureLocationMarkersInitialized()
     {
-        if(locationMarkersInitialized)
+        if(locationMarkersInitialized || DataContext is not MainViewModel vm)
             return;
 
-        // MapSvg.
+        var svg = MapSvg.SkSvg;
+        var picture = MapSvg.Picture;
+
+        if(svg is null || picture is null || !svg.TryEnsureRetainedSceneGraph(out var scene) || scene is null)
+            return;
+
+        var size = MapSvg.Bounds.Size; // Svg component size in the shown UI
+        var source = picture.CullRect; // Svg file's internal view rect, EX. (left, top, width, height) = (0, 0, 150, 110)
+
+        if(size.Width <= 0 || source.Height <= 0)
+            return;
+
+        var scale = Math.Min(size.Width / source.Width, size.Height / source.Height);
+
+        var offsetX = (size.Width - source.Width * scale) / 2; // used to handle empty area when aspect ratio are not meet
+        var offsetY = (size.Height - source.Height * scale) / 2;
+
+        foreach(var node in scene.Traverse())
+        {
+            var element = node.Element;
+
+            if(element is null || !element.CustomAttributes.TryGetValue(inkscapeLabelKey, out var name) ||
+                !vm.Session.State.NameToLocation.TryGetValue(name, out var location))
+                continue;
+            
+            var bounds = node.TransformedBounds; // Svg's file's node's transform bounds
+            
+            var centerX = (bounds.Left + bounds.Right) / 2; // svg's file's node's "resolved" center
+            var centerY = (bounds.Top + bounds.Bottom) / 2;
+
+            var point = new Point( // canvas's 
+                offsetX + (centerX - source.Left) * scale,
+                offsetY + (centerY - source.Top) * scale
+            );
+
+            // var overlayPoint = MapSvg.TranslatePoint(point, MapOverlay);
+            var overlayPoint = point; // They're the same point at the current UI structure
+
+            AddLocationMarker(location, overlayPoint.X, overlayPoint.Y);
+        }
+
+        locationMarkersInitialized = true;
     }
+
+    void RefreshLocationMarkers()
+    {
+        // Console.WriteLine("Try Refresh");
+
+        EnsureLocationMarkersInitialized();
+
+        if(locationMarkersInitialized && DataContext is MainViewModel vm)
+        {
+            var locToCount = vm.Session.State.Spacecrafts.GroupBy(s => s.Location).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach(var (loc, locationMarker) in _markers)
+            {
+                locationMarker.UpdateState(loc == vm.SelectedLocation, locToCount.GetValueOrDefault(loc));
+            }
+
+            // Console.WriteLine("Refresh");
+        }
+    }
+
+    DispatcherTimer _mapRefreshTimer = new(){Interval=TimeSpan.FromMilliseconds(16)}; // Target 60 fps
 }

@@ -25,10 +25,12 @@
                     <TextBlock Text="Score:" Grid.Column="0" Grid.Row="2" />
                     <TextBlock Text="{Binding Session.State.Score}" Grid.Column="1" Grid.Row="2" />
                 </Grid>
+
                 <Grid RowDefinitions="Auto,Auto">
                     <Button Grid.Row="0" Command="{Binding OpenResearchDialogCommand}">Research</Button>
                     <Button Grid.Row="1" Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
                 </Grid>
+                
                 <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
             </StackPanel>
 
