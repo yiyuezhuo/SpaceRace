@@ -332,9 +332,19 @@ public partial class GameState : ObservableObject
         if(!CanUsedInManeuver(thruster))
             return;
 
-        PrepareManeuverState.Spacecraft.Components.Remove(thruster);
+        if(thruster.Def.IsOneshot)
+        {
+            PrepareManeuverState.Spacecraft.Components.Remove(thruster);
+        }
+        else
+        {
+            thruster.Used = true;
+        }
+        
         PrepareManeuverState.AppliedThrust += thruster.Def.Thrust * targetYears;
     }
+
+    public void UseThrusterForManeuver(Component thruster) => UseThrusterForManeuver(thruster, PrepareManeuverState?.TargetYears ?? 0);
 
     public void StartPrepareManeuver(Spacecraft spacecraft, Route route, int targetYears)
     {

@@ -126,9 +126,19 @@ public partial class MainView : UserControl
         {
             var locToCount = vm.Session.State.Spacecrafts.GroupBy(s => s.Location).ToDictionary(g => g.Key, g => g.Count());
 
+            Dictionary<Models.Location, Models.Route>? destToRoute = null;
+            if(vm.SelectedLocation != null)
+            {
+                vm.Session.State.SourceToDestinationToRoute.TryGetValue(vm.SelectedLocation, out destToRoute);
+            }
+
             foreach(var (loc, locationMarker) in _markers)
             {
-                locationMarker.UpdateState(loc == vm.SelectedLocation, locToCount.GetValueOrDefault(loc));
+                locationMarker.UpdateState(
+                    loc == vm.SelectedLocation,
+                    vm.SelectState == MainViewModelSelectState.SelectManeuverTarget && destToRoute != null && destToRoute.ContainsKey(loc),
+                    locToCount.GetValueOrDefault(loc)
+                );
             }
 
             // Console.WriteLine("Refresh");

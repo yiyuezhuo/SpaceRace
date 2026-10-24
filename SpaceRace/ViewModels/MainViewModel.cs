@@ -77,17 +77,17 @@ public partial class MainViewModel : ViewModelBase
         get => Session.State.Spacecrafts.Where(s => s.Location == SelectedLocation).ToList();
     }
 
-    public MainViewModelSelectState MainViewModelSelectState;
+    public MainViewModelSelectState SelectState;
 
     public void SelectLocation(Location location)
     {
         Console.WriteLine($"Select Location: {location}");
 
-        if(MainViewModelSelectState == MainViewModelSelectState.Select)
+        if(SelectState == MainViewModelSelectState.Select)
         {
             SelectedLocation = location;
         }
-        else if(MainViewModelSelectState == MainViewModelSelectState.SelectManeuverTarget)
+        else if(SelectState == MainViewModelSelectState.SelectManeuverTarget)
         {
             // TODO: Check if it's a valid target
             if(SelectedSpacecraft != null && Session.State.TryGetManeuverRoute(SelectedSpacecraft, location, out var route) && route != null)
@@ -97,7 +97,7 @@ public partial class MainViewModel : ViewModelBase
                 IsManeuverDialogOpen = true;
             }
 
-            MainViewModelSelectState = MainViewModelSelectState.Select;
+            SelectState = MainViewModelSelectState.Select;
         }
     }
 
@@ -305,6 +305,8 @@ public partial class MainViewModel : ViewModelBase
     void DoManeuver()
     {
         Console.WriteLine("DoManeuver");
+
+        SelectState = MainViewModelSelectState.SelectManeuverTarget;
     }
 
     [RelayCommand]
@@ -372,7 +374,15 @@ public partial class MainViewModel : ViewModelBase
 
     bool CanApplyManeuver() => Session.State.PrepareManeuverBeginable();
 
-    public List<Component> AvailableThruesterOfSelectedSpacecraft = new();
+    public List<Component> ThrusterOfSelectedSpacecraft
+    {
+        get
+        {
+            if(SelectedSpacecraft == null)
+                return new();
+            return SelectedSpacecraft.Components.Where(c => c.Def.Thrust > 0).ToList(); // Contain "Ready" thruster and unready thruster (damaged or used)
+        }
+    }
 
     public bool IsManeuverDialogTargetYearReadOnly
     {
@@ -384,4 +394,12 @@ public partial class MainViewModel : ViewModelBase
             return state.AppliedThrust > 0;
         }
     }
+
+    [RelayCommand(CanExecute =nameof(CanUseThruster))]
+    void UseThruster(Component thruster)
+    {
+        Session.State.UseThrusterForManeuver(thruster);
+    }
+
+    bool CanUseThruster(Component thruster) => thruster.IsAvailable;
 }

@@ -143,4 +143,6 @@ public class Component
             return $"{Def.Name} ({string.Join(", ", words)})";
         }
     }
+
+    public bool IsAvailable => !(Damaged || Used);
 }

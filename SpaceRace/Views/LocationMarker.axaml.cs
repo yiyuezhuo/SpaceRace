@@ -9,9 +9,10 @@ public partial class LocationMarker: UserControl
         InitializeComponent();
     }
 
-    public void UpdateState(bool selected, int count)
+    public void UpdateState(bool selected, bool selectedNeighbor, int count)
     {
         SelectedEllipse.IsVisible = selected;
+        SelectedNeighborEllipse.IsVisible = selectedNeighbor;
 
         CountBadge.IsVisible = count > 0;
         CountText.Text = count.ToString();

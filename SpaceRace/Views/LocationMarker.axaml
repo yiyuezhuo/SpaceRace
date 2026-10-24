@@ -7,6 +7,7 @@
         
     <Grid>
         <Ellipse x:Name="SelectedEllipse" Stroke="#FBBF24" StrokeThickness="0.6" IsVisible="False" />
+        <Ellipse x:Name="SelectedNeighborEllipse" Stroke="Green" StrokeThickness="0.6" IsVisible="False" />
         <Border x:Name="CountBadge" 
                 Background="#17203333"
                 CornerRadius="1"

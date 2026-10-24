@@ -22,11 +22,31 @@
                 <Button Command="{Binding ApplyManeuverCommand}">Maneuver</Button>
             </StackPanel>
             
-            <Label Content="Target Years" Target="TargetYearsNumericUpDown" />
-            <NumericUpDown x:Name="TargetYearsNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.TargetYears}" IsReadOnly="{Binding IsManeuverDialogTargetYearReadOnly}" />
-            
-            <Label Content="Start Mass" Target="StartMassNumericUpDown" />
-            <NumericUpDown x:Name="StartMassNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.StartMass}" IsReadOnly="True" />
+            <StackPanel>
+                <Label Content="Target Years" Target="TargetYearsNumericUpDown" />
+                <NumericUpDown x:Name="TargetYearsNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.TargetYears}" IsReadOnly="{Binding IsManeuverDialogTargetYearReadOnly}" />
+                
+                <Label Content="Start Mass" Target="StartMassNumericUpDown" />
+                <NumericUpDown x:Name="StartMassNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.StartMass}" IsReadOnly="True" />
+
+                <ItemsControl x:Name="ThrusterItemsControl" ItemsSource="{Binding ThrusterOfSelectedSpacecraft}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button 
+                                Content="{Binding FullDescription}"
+                                Command="{Binding #ThrusterItemsControl.((vm:MainViewModel)DataContext).UseThrusterCommand}"
+                                CommandParameter="{Binding .}"
+                                Margin="4" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
 
         </DockPanel>
     </Border>

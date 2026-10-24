@@ -38,14 +38,14 @@
                 </WrapPanel>
 
 
-                <TableView ItemsSource="{Binding SpacecraftsOfSelectedLocation}" SelectedItem="{Binding SelectedSpacecraft}" IsVisible="{Binding !!SelectedLocation}">
+                <TableView ItemsSource="{Binding SpacecraftsOfSelectedLocation}" SelectedItem="{Binding SelectedSpacecraft}" IsVisible="{Binding SelectedLocation, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <TableView.Columns>
                         <TableViewColumn Header="Name" Binding="{Binding Name}" />
                         <TableViewColumn Header="Mass" Binding="{Binding Mass}" Width="50" />
                     </TableView.Columns>
                 </TableView>
                 
-                <StackPanel IsVisible="{Binding !!SelectedSpacecraft}">
+                <StackPanel IsVisible="{Binding SelectedSpacecraft, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <TextBlock Text="Spacecraft's Component:" />
                     <ListBox ItemsSource="{Binding SelectedSpacecraft?.Components}" SelectionMode="Multiple" SelectedItems="{Binding SelectedComponentsOfSelectedSpacecraft}">
                         <ListBox.ItemTemplate>
@@ -85,6 +85,7 @@
         <local:InventoryDialog MaxWidth="800" MaxHeight="500" IsVisible="{Binding IsInventoryDialogOpen}"  />
         <local:MissionDialog MaxWidth="800" MaxHeight="500" IsVisible="{Binding IsMissionDialogOpen}" />
         <local:MessageDialog HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsMessageDialogOpen}" />
+        <local:ManeuverDialog MaxWidth="800" MaxHeight="500" IsVisible="{Binding IsManeuverDialogOpen}" />
     </Grid>
     
     <!--
