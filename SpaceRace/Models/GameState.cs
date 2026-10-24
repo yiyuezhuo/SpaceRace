@@ -10,11 +10,11 @@ namespace SpaceRace.Models;
 
 public class PrepareManeuverState
 {
-    public required Spacecraft Spacecraft;
-    public required Route Route;
-    public required int StartMass;
-    public required int TargetYears;
-    public int AppliedThrust;
+    public required Spacecraft Spacecraft{get;set;}
+    public required Route Route{get;set;}
+    public required int StartMass{get;set;}
+    public required int TargetYears{get;set;}
+    public int AppliedThrust{get;set;}
 }
 
 public partial class GameState : ObservableObject
@@ -529,4 +529,19 @@ public partial class GameState : ObservableObject
 
         return true;
     }
+
+    public bool TryGetManeuverRoute(Spacecraft spacecraft, Location location, out Route? route)
+    {
+        if(SourceToDestinationToRoute.TryGetValue(spacecraft.Location, out var destToRoute))
+        {
+            if(destToRoute.TryGetValue(location, out route))
+            {
+                return true;
+            }
+        }
+        route = null;
+        return false;
+    }
+
+    
 }

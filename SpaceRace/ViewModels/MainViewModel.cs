@@ -15,6 +15,12 @@ namespace SpaceRace.ViewModels;
 
 // public record Country(string Name, string Region, int Population);
 
+public enum MainViewModelSelectState
+{
+    Select,
+    SelectManeuverTarget
+}
+
 public partial class MainViewModel : ViewModelBase
 {
     public GameSession Session{get;} = new();
@@ -71,11 +77,28 @@ public partial class MainViewModel : ViewModelBase
         get => Session.State.Spacecrafts.Where(s => s.Location == SelectedLocation).ToList();
     }
 
+    public MainViewModelSelectState MainViewModelSelectState;
+
     public void SelectLocation(Location location)
     {
         Console.WriteLine($"Select Location: {location}");
 
-        SelectedLocation = location;
+        if(MainViewModelSelectState == MainViewModelSelectState.Select)
+        {
+            SelectedLocation = location;
+        }
+        else if(MainViewModelSelectState == MainViewModelSelectState.SelectManeuverTarget)
+        {
+            // TODO: Check if it's a valid target
+            if(SelectedSpacecraft != null && Session.State.TryGetManeuverRoute(SelectedSpacecraft, location, out var route) && route != null)
+            {
+                Session.State.StartPrepareManeuver(SelectedSpacecraft, route, route.Years);
+                
+                IsManeuverDialogOpen = true;
+            }
+
+            MainViewModelSelectState = MainViewModelSelectState.Select;
+        }
     }
 
     public string LocationDescription
@@ -334,4 +357,31 @@ public partial class MainViewModel : ViewModelBase
     void DoHeal() => Session.State.DoHeal(SelectedSpacecraft);
 
     bool CanDoHeal() => Session.State.CanDoHeal(SelectedSpacecraft);
+
+    [ObservableProperty]
+    bool isManeuverDialogOpen;
+
+    [RelayCommand]
+    void CancelManeuverDialog()  => IsManeuverDialogOpen = false;
+
+    [RelayCommand(CanExecute =nameof(CanApplyManeuver))]
+    void ApplyManeuver()
+    {
+        Session.State.BeginPrepareManeuver();
+    }
+
+    bool CanApplyManeuver() => Session.State.PrepareManeuverBeginable();
+
+    public List<Component> AvailableThruesterOfSelectedSpacecraft = new();
+
+    public bool IsManeuverDialogTargetYearReadOnly
+    {
+        get
+        {
+            var state = Session.State.PrepareManeuverState;
+            if(state == null)
+                return true;
+            return state.AppliedThrust > 0;
+        }
+    }
 }

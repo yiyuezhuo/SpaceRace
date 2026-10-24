@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SpaceRace.ViewModels"
+             x:Class="SpaceRace.Views.ManeuverDialog"
+             x:DataType="vm:MainViewModel"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainViewModel />
+    </Design.DataContext>
+        
+    <Border Background="{DynamicResource SystemRegionColor}">
+        <DockPanel>
+            <TextBlock Text="Maneuver" Padding="4, 2" FontSize="20" FontWeight="Bold" DockPanel.Dock="Top" />
+            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
+                <Button Command="{Binding CancelManeuverDialogCommand}">Close</Button>
+                <Button Command="{Binding ApplyManeuverCommand}">Maneuver</Button>
+            </StackPanel>
+            
+            <Label Content="Target Years" Target="TargetYearsNumericUpDown" />
+            <NumericUpDown x:Name="TargetYearsNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.TargetYears}" IsReadOnly="{Binding IsManeuverDialogTargetYearReadOnly}" />
+            
+            <Label Content="Start Mass" Target="StartMassNumericUpDown" />
+            <NumericUpDown x:Name="StartMassNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.StartMass}" IsReadOnly="True" />
+
+        </DockPanel>
+    </Border>
+
+</UserControl>
