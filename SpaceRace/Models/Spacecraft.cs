@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace SpaceRace.Models;
@@ -11,10 +12,21 @@ public class MoveState
     public int RequiredYears;
 }
 
-public class Spacecraft
+public partial class Spacecraft : ObservableObject
 {
     public string Name{get;set;} = "Spacecraft #0";
-    public List<Component> Components{get;set;} = new();
+    public ObservableCollection<Component> Components{get;} = new();
+    public IEnumerable<Component> Thrusters => Components.Where(c => c.Def.Thrust > 0);
+
+    public Spacecraft()
+    {
+        Components.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(Thrusters));
+            OnPropertyChanged(nameof(Mass));
+        };
+    }
+
     public required Location Location{get;set;}
     public MoveState? MoveState{get;set;}
 

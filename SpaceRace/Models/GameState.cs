@@ -8,13 +8,16 @@ using Avalonia.Controls.Embedding.Offscreen;
 
 namespace SpaceRace.Models;
 
-public class PrepareManeuverState
+public partial class PrepareManeuverState : ObservableObject
 {
     public required Spacecraft Spacecraft{get;set;}
     public required Route Route{get;set;}
     public required int StartMass{get;set;}
+    public required int RequiredThrust{get;set;}
     public required int TargetYears{get;set;}
-    public int AppliedThrust{get;set;}
+
+    [ObservableProperty]
+    public int appliedThrust;
 }
 
 public partial class GameState : ObservableObject
@@ -86,7 +89,8 @@ public partial class GameState : ObservableObject
     public Dictionary<Location, Dictionary<Location, Route>> SourceToDestinationToRoute = new();
     int spacecraftCreated = 0;
 
-    public PrepareManeuverState? PrepareManeuverState{get;set;} 
+    [ObservableProperty]
+    PrepareManeuverState? prepareManeuverState; 
 
     public GameState()
     {
@@ -353,6 +357,7 @@ public partial class GameState : ObservableObject
             Spacecraft=spacecraft,
             Route=route,
             StartMass=spacecraft.Mass,
+            RequiredThrust=route.Difficulty * spacecraft.Mass,
             TargetYears=targetYears,
             AppliedThrust=0
         };
@@ -399,9 +404,12 @@ public partial class GameState : ObservableObject
         var spacecraft = new Spacecraft()
         {
             Name = $"Spacecraft #{spacecraftCreated+1}",
-            Components=components.ToList(),
+            // Components=components.ToList(),
             Location = location
         };
+        foreach(var comp in components)
+            spacecraft.Components.Add(comp);
+
         Spacecrafts.Add(spacecraft);
         
         spacecraftCreated++;

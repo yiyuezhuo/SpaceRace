@@ -29,7 +29,16 @@
                 <Label Content="Start Mass" Target="StartMassNumericUpDown" />
                 <NumericUpDown x:Name="StartMassNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.StartMass}" IsReadOnly="True" />
 
-                <ItemsControl x:Name="ThrusterItemsControl" ItemsSource="{Binding ThrusterOfSelectedSpacecraft}">
+                <Label Content="Difficulty" Target="DifficultyNumericUpDown" />
+                <NumericUpDown x:Name="DifficultyNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.Route.Difficulty}" IsReadOnly="True" />
+
+                <Label Content="Required Thrust" Target="RequiredThrustNumericUpDown" />
+                <NumericUpDown x:Name="RequiredThrustNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.RequiredThrust}" IsReadOnly="True" />
+
+                <Label Content="Applied Thrust" Target="RequiredThrustNumericUpDown" />
+                <NumericUpDown x:Name="AppliedThrustNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.AppliedThrust}" IsReadOnly="True" />
+
+                <ItemsControl x:Name="ThrusterItemsControl" ItemsSource="{Binding Session.State.PrepareManeuverState.Spacecraft.Thrusters}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>

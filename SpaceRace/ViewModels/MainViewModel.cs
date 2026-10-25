@@ -35,7 +35,6 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        
     }
 
     public MainViewModel(GameSession session)
@@ -43,6 +42,11 @@ public partial class MainViewModel : ViewModelBase
         Session = session;
 
         Session.State.Spacecrafts.CollectionChanged += OnSpacecraftChanged;
+
+        SelectedInventoryComponents.CollectionChanged += (_, _) =>
+        {
+            DoAssembleStarcraftCommand.NotifyCanExecuteChanged();
+        };
 
         // LocationMarkers = Session.State.Locations.ToDictionary(
         //     location => location,
@@ -70,6 +74,13 @@ public partial class MainViewModel : ViewModelBase
     Location? selectedLocation;
 
     [ObservableProperty]
+    // [NotifyPropertyChangedFor(nameof(ThrustersOfSelectedSpacecraft))]
+    [NotifyCanExecuteChangedFor(nameof(DoManeuverCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DoDockCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DoSeparateCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DoDisassembleCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DoRepairCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DoHealCommand))]
     Spacecraft? selectedSpacecraft;
 
     public List<Spacecraft> SpacecraftsOfSelectedLocation
@@ -94,6 +105,8 @@ public partial class MainViewModel : ViewModelBase
             {
                 Session.State.StartPrepareManeuver(SelectedSpacecraft, route, route.Years);
                 
+                RefreshManeuverDialog();
+
                 IsManeuverDialogOpen = true;
             }
 
@@ -273,7 +286,7 @@ public partial class MainViewModel : ViewModelBase
         return Session.State.CanBuyComponent(SelectedComponentDef);
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute =nameof(CanDoAssembleStarcraft))]
     void DoAssembleStarcraft()
     {
         Console.WriteLine("DoAssembleStarcraft");
@@ -283,10 +296,10 @@ public partial class MainViewModel : ViewModelBase
         SelectedInventoryComponents.Clear();
     }
 
-    // bool CanDoAssembleStarcraft()
-    // {
-    //     return SelectedInventoryComponents.Count > 0;
-    // }
+    bool CanDoAssembleStarcraft()
+    {
+        return SelectedInventoryComponents.Count > 0;
+    }
 
     [RelayCommand]
     void DoNextTurn()
@@ -301,7 +314,7 @@ public partial class MainViewModel : ViewModelBase
         // Branch End of Game
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute =nameof(CanDoManeuver))]
     void DoManeuver()
     {
         Console.WriteLine("DoManeuver");
@@ -309,13 +322,23 @@ public partial class MainViewModel : ViewModelBase
         SelectState = MainViewModelSelectState.SelectManeuverTarget;
     }
 
-    [RelayCommand]
+    bool CanDoManeuver()
+    {
+        return SelectedSpacecraft != null;
+    }
+
+    [RelayCommand(CanExecute =nameof(CanDoDock))]
     void DoDock()
     {
         Console.WriteLine("DoDock");
     }
 
-    [RelayCommand]
+    bool CanDoDock()
+    {
+        return SelectedSpacecraft != null && !SelectedSpacecraft.Location.IsHome;
+    }
+
+    [RelayCommand(CanExecute =nameof(CanDoSeparate))]
     void DoSeparate()
     {
         Console.WriteLine("DoSeparate");
@@ -374,15 +397,15 @@ public partial class MainViewModel : ViewModelBase
 
     bool CanApplyManeuver() => Session.State.PrepareManeuverBeginable();
 
-    public List<Component> ThrusterOfSelectedSpacecraft
-    {
-        get
-        {
-            if(SelectedSpacecraft == null)
-                return new();
-            return SelectedSpacecraft.Components.Where(c => c.Def.Thrust > 0).ToList(); // Contain "Ready" thruster and unready thruster (damaged or used)
-        }
-    }
+    // public List<Component> ThrustersOfSelectedSpacecraft
+    // {
+    //     get
+    //     {
+    //         if(SelectedSpacecraft == null)
+    //             return new();
+    //         return SelectedSpacecraft.Components.Where(c => c.Def.Thrust > 0).ToList(); // Contain "Ready" thruster and unready thruster (damaged or used)
+    //     }
+    // }
 
     public bool IsManeuverDialogTargetYearReadOnly
     {
@@ -399,7 +422,28 @@ public partial class MainViewModel : ViewModelBase
     void UseThruster(Component thruster)
     {
         Session.State.UseThrusterForManeuver(thruster);
+
+        RefreshManeuverDialog();
     }
+
+    void RefreshManeuverDialog()
+    {
+        // TODO: Fix the Code-smell
+        // OnPropertyChanged(nameof(ThrustersOfSelectedSpacecraft));
+        OnPropertyChanged(nameof(IsManeuverDialogTargetYearReadOnly));
+        UseThrusterCommand.NotifyCanExecuteChanged();
+        ApplyManeuverCommand.NotifyCanExecuteChanged();
+    }
+
+    // void RefreshSpacecraftControlButtons()
+    // {
+    //     DoManeuverCommand.NotifyCanExecuteChanged();
+    //     DoDockCommand.NotifyCanExecuteChanged();
+    //     DoDisassembleCommand.NotifyCanExecuteChanged();
+    //     DoSeparateCommand.NotifyCanExecuteChanged();
+    //     DoRepairCommand.NotifyCanExecuteChanged();
+    //     DoHealCommand.NotifyCanExecuteChanged();
+    // }
 
     bool CanUseThruster(Component thruster) => thruster.IsAvailable;
 }
