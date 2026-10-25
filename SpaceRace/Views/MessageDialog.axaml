@@ -13,10 +13,11 @@
         <vm:MainViewModel />
     </Design.DataContext>
         
-    <Border Background="{DynamicResource SystemRegionColor}">
+    <Border Background="{DynamicResource SystemRegionColor}" BorderBrush="#888888" BorderThickness="1">
         <Grid RowDefinitions="Auto,Auto,Auto">
             <TextBlock Text="{Binding MessageDialogTitle}" Grid.Row="0" Padding="4, 2" FontSize="20" FontWeight="Bold" />
-            <TextBlock Text="{Binding MessageDialogContent}" Grid.Row="1" />
+            
+            <TextBox Text="{Binding MessageDialogContent}" MinHeight="50" IsReadOnly="True" Grid.Row="1" />
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2">
                 <Button Command="{Binding CloseMessageDialogCommand}">Close</Button>

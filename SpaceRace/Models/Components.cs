@@ -105,7 +105,7 @@ public class ComponentDef
         };
     }
 
-    public static ComponentDef MakeAstronaut(string name, bool isDoctor = false, bool isMechanic = false, bool isPilot = false, int price=2)
+    public static ComponentDef MakeAstronaut(string name, bool isDoctor = false, bool isMechanic = false, bool isPilot = false, int price=5)
     {
         return new()
         {
@@ -114,7 +114,8 @@ public class ComponentDef
             IsDoctor=isDoctor,
             IsMechanic=isMechanic,
             IsPilot=isPilot,
-            Price=price
+            Price=price,
+            Mass=0
         };
     }
 }

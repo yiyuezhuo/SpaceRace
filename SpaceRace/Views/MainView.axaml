@@ -19,7 +19,13 @@
                 <Button Command="{Binding DoNextTurnCommand}">Next Turn</Button>
                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
                     <TextBlock Text="Year:" Grid.Column="0" Grid.Row="0" />
-                    <TextBlock Text="{Binding Session.State.Year}" Grid.Column="1" Grid.Row="0" />
+                    
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0">
+                        <TextBlock Text="{Binding Session.State.Year}"  />
+                        <TextBlock Text=" / " />
+                        <TextBlock Text="{Binding Session.State.EndYear}" />
+                    </StackPanel>
+                    
                     <TextBlock Text="Funds:" Grid.Column="0" Grid.Row="1" />
                     <TextBlock Text="{Binding Session.State.Funds}" Grid.Column="1" Grid.Row="1" />
                     <TextBlock Text="Score:" Grid.Column="0" Grid.Row="2" />
@@ -47,7 +53,7 @@
                 
                 <StackPanel IsVisible="{Binding SelectedSpacecraft, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <TextBlock Text="Spacecraft's Component:" />
-                    <ListBox ItemsSource="{Binding SelectedSpacecraft?.Components}" SelectionMode="Multiple" SelectedItems="{Binding SelectedComponentsOfSelectedSpacecraft}">
+                    <ListBox ItemsSource="{Binding SelectedSpacecraft?.Components}" SelectionMode="Multiple,Toggle" SelectedItems="{Binding SelectedComponentsOfSelectedSpacecraft}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding FullDescription}" />
@@ -64,8 +70,17 @@
                         <Button Command="{Binding DoHealCommand}">Heal</Button>
                     </WrapPanel>
                 </StackPanel>
-
-                <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
+                
+                <StackPanel IsVisible="{Binding SelectedLocation, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
+                    <WrapPanel IsVisible="{Binding SelectedLocation?.HasExploreValue, TargetNullValue=False}">
+                        <CheckBox IsChecked="{Binding SelectedLocation?.Surveyed, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Surveyed</CheckBox>
+                        <CheckBox IsChecked="{Binding SelectedLocation?.Entered, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Entered</CheckBox>
+                        <CheckBox IsChecked="{Binding SelectedLocation?.HumanEntered, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Human Entered</CheckBox>
+                        <CheckBox IsChecked="{Binding SelectedLocation?.HumanMaintained, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Human Maintained</CheckBox>
+                    </WrapPanel>
+                </StackPanel>
+                
             </StackPanel>
 
             <ScrollViewer>

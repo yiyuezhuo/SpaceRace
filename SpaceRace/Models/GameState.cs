@@ -144,6 +144,7 @@ public partial class GameState : ObservableObject
             
             Route.Make(SuborbitalFlight, EarthOrbit, 5),
 
+            Route.Make(EarthOrbit, Earth, 0, isLanding: true, isReEntry: true),
             Route.Make(EarthOrbit, LunarOrbit, 3),
             Route.Make(EarthOrbit, LunarFlyBy, 1),
             Route.Make(EarthOrbit, MarsOrbit, 5, years: 3, hasRadiation: true),
@@ -273,8 +274,29 @@ public partial class GameState : ObservableObject
                 if(spacecraft.MoveState.ElapsedYears >= spacecraft.MoveState.RequiredYears) // Complete the movement
                 {
                     // spacecraft.Location = spacecraft.MoveState.Route.Destination;
-                    MoveTo(spacecraft, spacecraft.MoveState.Route.Destination);
+                    // MoveTo(spacecraft, spacecraft.MoveState.Route.Destination);
+                    MoveThrough(spacecraft, spacecraft.MoveState.Route);
                     spacecraft.MoveState = null;
+                }
+            }
+        }
+
+        // IsLifeSupportEnabled kill
+        if(!IsLifeSupportEnabled)
+        {
+            foreach(var spacecraft in Spacecrafts)
+            {
+                if(!spacecraft.Location.IsHome)
+                {
+                    var astronauts = spacecraft.Components.Where(c => c.Def.Type == ComponentType.Astronaut).ToList();
+                    if(astronauts.Count > 0)
+                    {
+                        Log($"No Life Support Research, all astronaut in {spacecraft} killed");
+                        foreach(var astronaut in astronauts)
+                        {
+                            DestroyComponent(spacecraft, astronaut);
+                        }
+                    }
                 }
             }
         }
@@ -420,10 +442,25 @@ public partial class GameState : ObservableObject
         return PrepareManeuverState.AppliedThrust >= PrepareManeuverState.StartMass * PrepareManeuverState.Route.Difficulty;
     }
 
-    public void MoveTo(Spacecraft spacecraft, Location destination)
+    public void MoveThrough(Spacecraft spacecraft, Route route)
     {
-        spacecraft.Location = destination;
-        MoveToHousekeepingForMission(spacecraft, destination);
+        if(route.IsLanding && !IsLandingEnabled)
+        {
+            Log($"Landing not researched, {spacecraft.Name} destroyed");
+            DestroySpacecraft(spacecraft);
+            return;
+        }
+        if(route.IsReEntry)
+        {
+            var isReEntryEnabled = IsReEntryEnabled;
+            var destroyedComponentsInReEntry = spacecraft.Components.Where(c => c.Def.Type == ComponentType.Capsule && (!isReEntryEnabled || !c.Def.HasHeatShield)).ToList();
+            foreach(var comp in destroyedComponentsInReEntry)
+                DestroyComponent(spacecraft, comp);
+            // TODO: Enforce capacity limit
+        }
+
+        spacecraft.Location = route.Destination;
+        MoveToHousekeepingForMission(spacecraft, route.Destination);
     }
 
     void MoveToHousekeepingForMission(Spacecraft spacecraft, Location destination)
@@ -444,7 +481,7 @@ public partial class GameState : ObservableObject
             }
         }
 
-        if(Researches.Any(r => r.Researched && r.EnableSurveying) && spacecraft.Components.Any(c => !c.Damaged && c.Def.Surveyable))
+        if(IsSurveyingEnabled && spacecraft.Components.Any(c => !c.Damaged && c.Def.Surveyable))
         {
             foreach(var (dest, route) in SourceToDestinationToRoute[destination])
             {
@@ -468,7 +505,8 @@ public partial class GameState : ObservableObject
         if(PrepareManeuverState.Route.Years == 0)
         {
             // PrepareManeuverState.Spacecraft.Location = PrepareManeuverState.Route.Destination;
-            MoveTo(PrepareManeuverState.Spacecraft, PrepareManeuverState.Route.Destination);
+            // MoveThrough(PrepareManeuverState.Spacecraft, PrepareManeuverState.Route.Destination);
+            MoveThrough(PrepareManeuverState.Spacecraft, PrepareManeuverState.Route);
         }
         else
         {
@@ -645,5 +683,9 @@ public partial class GameState : ObservableObject
         return false;
     }
 
-    
+    public bool IsRendezvousEnabled => Researches.Any(r => r.EnableRendezvous && r.Researched);
+    public bool IsReEntryEnabled => Researches.Any(r => r.EnableReEntry && r.Researched);
+    public bool IsLandingEnabled => Researches.Any(r => r.EnableLanding && r.Researched);
+    public bool IsLifeSupportEnabled => Researches.Any(r => r.EnableLifeSupport && r.Researched);
+    public bool IsSurveyingEnabled => Researches.Any(r => r.EnableSurveying && r.Researched);
 }

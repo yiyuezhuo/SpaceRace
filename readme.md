@@ -1,8 +1,23 @@
 # Leaving Earth
 
-Digitation of Joseph Fatula's [Leaving Earth](https://boardgamegeek.com/boardgame/173064/leaving-earth). Submission to HAGJ 13.
+A simplified version of Joseph Fatula's [Leaving Earth](https://boardgamegeek.com/boardgame/173064/leaving-earth). Submission to HAGJ 13. Incomplete game.
 
 Map style is inspired by: https://www.rmg.co.uk/stories/space-astronomy/origin-solar-system
+
+## How to play:
+
+- Research to unlock thrusters (rockets & Ion thruster)
+- Buy thrusters and other components (Probe, Capsule, Astronaut, Supply, ...)
+- Assemble them into a spacecraft
+- Maneuver spacecraft to Earth's orbit and other planets
+- Survey Earth's orbit & other planet to earn score (long-range survey, landing, human landing and sustaining human life for one year)
+
+## Current limitation
+
+Due to game jam's time limit, the game is incomplete:
+
+- Docking is not implemented.
+- The game is not fully tested.
 
 ## Usage
 

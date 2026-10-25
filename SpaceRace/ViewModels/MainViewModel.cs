@@ -49,6 +49,12 @@ public partial class MainViewModel : ViewModelBase
             NotifySomethingChanged();
         };
 
+        SelectedComponentsOfSelectedSpacecraft.CollectionChanged += (_, _) =>
+        {
+            // NotifySomethingChanged();
+            DoSeparateCommand.NotifyCanExecuteChanged(); // The above will cause complicated Reentrancy bugs
+        };
+
         // SelectedSpacecraft.PropertyChanged += (_, _) =>
         // {
             
@@ -115,11 +121,16 @@ public partial class MainViewModel : ViewModelBase
             // TODO: Check if it's a valid target
             if(SelectedSpacecraft != null && Session.State.TryGetManeuverRoute(SelectedSpacecraft, location, out var route) && route != null)
             {
-                Session.State.StartPrepareManeuver(SelectedSpacecraft, route, route.Years);
-                
-                // RefreshManeuverDialog();
-
-                IsManeuverDialogOpen = true;
+                if(route.Difficulty > 0)
+                {
+                    Session.State.StartPrepareManeuver(SelectedSpacecraft, route, route.Years);
+                    
+                    IsManeuverDialogOpen = true;
+                }
+                else
+                {
+                    Session.State.MoveThrough(SelectedSpacecraft, route);
+                }
             }
 
             SelectState = MainViewModelSelectState.Select;
@@ -353,11 +364,20 @@ public partial class MainViewModel : ViewModelBase
     void DoDock()
     {
         Console.WriteLine("DoDock");
+
+        ShowMessage("Dock is not implemented"); // TODO: implement it
     }
 
     bool CanDoDock()
     {
-        return SelectedSpacecraft != null && !SelectedSpacecraft.Location.IsHome;
+        if(SelectedSpacecraft == null || SelectedSpacecraft.Location.IsHome)
+            return false;
+
+        if(!Session.State.IsRendezvousEnabled)
+            return false;
+
+        return Session.State.Spacecrafts.Count(s => s.Location == SelectedSpacecraft.Location) >= 2;
+
     }
 
     [RelayCommand(CanExecute =nameof(CanDoSeparate))]
@@ -375,7 +395,7 @@ public partial class MainViewModel : ViewModelBase
 
     bool CanDoSeparate()
     {
-        return SelectedSpacecraft != null && SelectedComponentsOfSelectedSpacecraft.Count > 0;
+        return SelectedSpacecraft != null && SelectedComponentsOfSelectedSpacecraft.Count > 0 && Session.State.IsRendezvousEnabled;
     }
 
     [RelayCommand(CanExecute =nameof(CanDoDisassemble))]
@@ -464,7 +484,10 @@ public partial class MainViewModel : ViewModelBase
         if(Session.State.PrepareManeuverState != null && Session.State.PrepareManeuverState.AppliedThrust >= Session.State.PrepareManeuverState.RequiredThrust)
         {
             Session.State.BeginPrepareManeuver();
-            NotifySomethingChanged();
+            
+            IsManeuverDialogOpen = false;
+
+            // NotifySomethingChanged();
         }
 
         // RefreshManeuverDialog();
@@ -477,6 +500,8 @@ public partial class MainViewModel : ViewModelBase
     //     // OnPropertyChanged(nameof(ThrustersOfSelectedSpacecraft));
     //     // OnPropertyChanged(nameof(IsManeuverDialogTargetYearReadOnly));
     // }
+
+    List<Spacecraft> oldSpacecraftsOfSelectedLocation;
 
     void RefreshViewModels()
     {
@@ -497,7 +522,11 @@ public partial class MainViewModel : ViewModelBase
         ResearchCommand.NotifyCanExecuteChanged();
 
         // Complex derived attributes
-        OnPropertyChanged(nameof(SpacecraftsOfSelectedLocation));
+        if(oldSpacecraftsOfSelectedLocation == null || !oldSpacecraftsOfSelectedLocation.SequenceEqual(SpacecraftsOfSelectedLocation))
+        {
+            oldSpacecraftsOfSelectedLocation = SpacecraftsOfSelectedLocation;
+            OnPropertyChanged(nameof(SpacecraftsOfSelectedLocation));
+        }
 
         // Refresh Maneuver Dialog
         // OnPropertyChanged(nameof())
