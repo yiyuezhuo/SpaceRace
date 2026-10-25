@@ -15,73 +15,75 @@
                 
     <Grid>
         <DockPanel>
-            <StackPanel Orientation="Vertical" Spacing="5" DockPanel.Dock="Right" Width="200">
-                <Button Command="{Binding DoNextTurnCommand}">Next Turn</Button>
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
-                    <TextBlock Text="Year:" Grid.Column="0" Grid.Row="0" />
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0">
-                        <TextBlock Text="{Binding Session.State.Year}"  />
-                        <TextBlock Text=" / " />
-                        <TextBlock Text="{Binding Session.State.EndYear}" />
-                    </StackPanel>
-                    
-                    <TextBlock Text="Funds:" Grid.Column="0" Grid.Row="1" />
-                    <TextBlock Text="{Binding Session.State.Funds}" Grid.Column="1" Grid.Row="1" />
-                    <TextBlock Text="Score:" Grid.Column="0" Grid.Row="2" />
-                    <TextBlock Text="{Binding Session.State.Score}" Grid.Column="1" Grid.Row="2" />
-                </Grid>
+            <ScrollViewer DockPanel.Dock="Right" Width="200">
+                <StackPanel Orientation="Vertical" Spacing="5">
+                    <Button Command="{Binding DoNextTurnCommand}">Next Turn</Button>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                        <TextBlock Text="Year:" Grid.Column="0" Grid.Row="0" />
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0">
+                            <TextBlock Text="{Binding Session.State.Year}"  />
+                            <TextBlock Text=" / " />
+                            <TextBlock Text="{Binding Session.State.EndYear}" />
+                        </StackPanel>
+                        
+                        <TextBlock Text="Funds:" Grid.Column="0" Grid.Row="1" />
+                        <TextBlock Text="{Binding Session.State.Funds}" Grid.Column="1" Grid.Row="1" />
+                        <TextBlock Text="Score:" Grid.Column="0" Grid.Row="2" />
+                        <TextBlock Text="{Binding Session.State.Score}" Grid.Column="1" Grid.Row="2" />
+                    </Grid>
 
-                <!-- <Grid RowDefinitions="Auto,Auto">
-                    <Button Grid.Row="0" Command="{Binding OpenResearchDialogCommand}">Research</Button>
-                    <Button Grid.Row="1" Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
-                </Grid> -->
-
-                <WrapPanel>
-                    <Button Command="{Binding OpenResearchDialogCommand}">Research</Button>
-                    <Button Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
-                    <!-- <Button Command="{Binding OpenMissionDialogCommand}">Missions</Button> -->
-                </WrapPanel>
-
-
-                <TableView ItemsSource="{Binding SpacecraftsOfSelectedLocation}" SelectedItem="{Binding SelectedSpacecraft}" IsVisible="{Binding SelectedLocation, Converter={x:Static ObjectConverters.IsNotNull}}">
-                    <TableView.Columns>
-                        <TableViewColumn Header="Name" Binding="{Binding Name}" />
-                        <TableViewColumn Header="Mass" Binding="{Binding Mass}" Width="50" />
-                    </TableView.Columns>
-                </TableView>
-                
-                <StackPanel IsVisible="{Binding SelectedSpacecraft, Converter={x:Static ObjectConverters.IsNotNull}}">
-                    <TextBlock Text="Spacecraft's Component:" />
-                    <ListBox ItemsSource="{Binding SelectedSpacecraft?.Components}" SelectionMode="Multiple,Toggle" SelectedItems="{Binding SelectedComponentsOfSelectedSpacecraft}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding FullDescription}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <!-- <Grid RowDefinitions="Auto,Auto">
+                        <Button Grid.Row="0" Command="{Binding OpenResearchDialogCommand}">Research</Button>
+                        <Button Grid.Row="1" Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
+                    </Grid> -->
 
                     <WrapPanel>
-                        <Button Command="{Binding DoManeuverCommand}">Maneuver</Button>
-                        <Button Command="{Binding DoDockCommand}">Dock</Button>
-                        <Button Command="{Binding DoSeparateCommand}">Separate</Button>
-                        <Button Command="{Binding DoDisassembleCommand}">Disassemble</Button>
-                        <Button Command="{Binding DoRepairCommand}">Repair</Button>
-                        <Button Command="{Binding DoHealCommand}">Heal</Button>
+                        <Button Command="{Binding OpenResearchDialogCommand}">Research</Button>
+                        <Button Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
+                        <!-- <Button Command="{Binding OpenMissionDialogCommand}">Missions</Button> -->
                     </WrapPanel>
+
+
+                    <TableView ItemsSource="{Binding SpacecraftsOfSelectedLocation}" SelectedItem="{Binding SelectedSpacecraft}" IsVisible="{Binding SelectedLocation, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TableView.Columns>
+                            <TableViewColumn Header="Name" Binding="{Binding Name}" />
+                            <TableViewColumn Header="Mass" Binding="{Binding Mass}" Width="50" />
+                        </TableView.Columns>
+                    </TableView>
+                    
+                    <StackPanel IsVisible="{Binding SelectedSpacecraft, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TextBlock Text="Spacecraft's Component:" />
+                        <ListBox ItemsSource="{Binding SelectedSpacecraft?.Components}" SelectionMode="Multiple,Toggle" SelectedItems="{Binding SelectedComponentsOfSelectedSpacecraft}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding FullDescription}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <WrapPanel>
+                            <Button Command="{Binding DoManeuverCommand}">Maneuver</Button>
+                            <Button Command="{Binding DoDockCommand}">Dock</Button>
+                            <Button Command="{Binding DoSeparateCommand}">Separate</Button>
+                            <Button Command="{Binding DoDisassembleCommand}">Disassemble</Button>
+                            <Button Command="{Binding DoRepairCommand}">Repair</Button>
+                            <Button Command="{Binding DoHealCommand}">Heal</Button>
+                        </WrapPanel>
+                    </StackPanel>
+                    
+                    <StackPanel IsVisible="{Binding SelectedLocation, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
+                        <WrapPanel IsVisible="{Binding SelectedLocation?.HasExploreValue, TargetNullValue=False}">
+                            <CheckBox IsChecked="{Binding SelectedLocation?.Surveyed, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Surveyed</CheckBox>
+                            <CheckBox IsChecked="{Binding SelectedLocation?.Entered, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Entered</CheckBox>
+                            <CheckBox IsChecked="{Binding SelectedLocation?.HumanEntered, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Human Entered</CheckBox>
+                            <CheckBox IsChecked="{Binding SelectedLocation?.HumanMaintained, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Human Maintained</CheckBox>
+                        </WrapPanel>
+                    </StackPanel>
+                    
                 </StackPanel>
-                
-                <StackPanel IsVisible="{Binding SelectedLocation, Converter={x:Static ObjectConverters.IsNotNull}}">
-                    <TextBlock Text="{Binding LocationDescription}" TextWrapping="Wrap" />
-                    <WrapPanel IsVisible="{Binding SelectedLocation?.HasExploreValue, TargetNullValue=False}">
-                        <CheckBox IsChecked="{Binding SelectedLocation?.Surveyed, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Surveyed</CheckBox>
-                        <CheckBox IsChecked="{Binding SelectedLocation?.Entered, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Entered</CheckBox>
-                        <CheckBox IsChecked="{Binding SelectedLocation?.HumanEntered, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Human Entered</CheckBox>
-                        <CheckBox IsChecked="{Binding SelectedLocation?.HumanMaintained, TargetNullValue=False, Mode=OneWay}" IsEnabled="False">Human Maintained</CheckBox>
-                    </WrapPanel>
-                </StackPanel>
-                
-            </StackPanel>
+            </ScrollViewer>
 
             <ScrollViewer>
                 <Viewbox Stretch="Uniform">

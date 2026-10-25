@@ -688,4 +688,18 @@ public partial class GameState : ObservableObject
     public bool IsLandingEnabled => Researches.Any(r => r.EnableLanding && r.Researched);
     public bool IsLifeSupportEnabled => Researches.Any(r => r.EnableLifeSupport && r.Researched);
     public bool IsSurveyingEnabled => Researches.Any(r => r.EnableSurveying && r.Researched);
+
+    public void DoDock(Spacecraft spacecraft)
+    {
+        // Merge all other now
+        var otherSpacecrafts = Spacecrafts.Where(s => s != spacecraft && s.Location == spacecraft.Location).ToList();
+        foreach(var otherSpacecraft in otherSpacecrafts)
+        {
+            foreach(var component in otherSpacecraft.Components)
+            {
+                spacecraft.Components.Add(component);
+            }
+            Spacecrafts.Remove(otherSpacecraft);
+        }
+    }
 }

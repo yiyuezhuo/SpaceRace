@@ -4,6 +4,10 @@ A simplified version of Joseph Fatula's [Leaving Earth](https://boardgamegeek.co
 
 Map style is inspired by: https://www.rmg.co.uk/stories/space-astronomy/origin-solar-system
 
+## Screenshot
+
+<img src="https://img.itch.zone/aW1hZ2UvNTIyOTQ2OC8zMTM0NTg5My5qcGc=/original/rEHESz.jpg">
+
 ## How to play:
 
 - Research to unlock thrusters (rockets & Ion thruster)
@@ -16,8 +20,8 @@ Map style is inspired by: https://www.rmg.co.uk/stories/space-astronomy/origin-s
 
 Due to game jam's time limit, the game is incomplete:
 
-- Docking is not implemented.
-- The game is not fully tested.
+- The game is not tested.
+- Capsule capacity is not implemented
 
 ## Usage
 

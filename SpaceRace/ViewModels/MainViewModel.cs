@@ -365,7 +365,13 @@ public partial class MainViewModel : ViewModelBase
     {
         Console.WriteLine("DoDock");
 
-        ShowMessage("Dock is not implemented"); // TODO: implement it
+        // ShowMessage("Dock is not implemented"); // TODO: implement it
+        if(SelectedSpacecraft == null || !CanDoDock())
+            return;
+        
+        Session.State.DoDock(SelectedSpacecraft);
+
+        NotifySomethingChanged();
     }
 
     bool CanDoDock()
@@ -377,7 +383,6 @@ public partial class MainViewModel : ViewModelBase
             return false;
 
         return Session.State.Spacecrafts.Count(s => s.Location == SelectedSpacecraft.Location) >= 2;
-
     }
 
     [RelayCommand(CanExecute =nameof(CanDoSeparate))]
