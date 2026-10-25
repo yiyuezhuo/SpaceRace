@@ -425,15 +425,15 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     void CancelManeuverDialog()  => IsManeuverDialogOpen = false;
 
-    [RelayCommand(CanExecute =nameof(CanApplyManeuver))]
-    void ApplyManeuver()
-    {
-        Session.State.BeginPrepareManeuver();
+    // [RelayCommand(CanExecute =nameof(CanApplyManeuver))]
+    // void ApplyManeuver()
+    // {
+    //     Session.State.BeginPrepareManeuver();
 
-        NotifySomethingChanged();
-    }
+    //     NotifySomethingChanged();
+    // }
 
-    bool CanApplyManeuver() => Session.State.PrepareManeuverBeginable();
+    // bool CanApplyManeuver() => Session.State.PrepareManeuverBeginable();
 
     // public List<Component> ThrustersOfSelectedSpacecraft
     // {
@@ -461,6 +461,12 @@ public partial class MainViewModel : ViewModelBase
     {
         Session.State.UseThrusterForManeuver(thruster);
 
+        if(Session.State.PrepareManeuverState != null && Session.State.PrepareManeuverState.AppliedThrust >= Session.State.PrepareManeuverState.RequiredThrust)
+        {
+            Session.State.BeginPrepareManeuver();
+            NotifySomethingChanged();
+        }
+
         // RefreshManeuverDialog();
         NotifySomethingChanged();
     }
@@ -486,7 +492,7 @@ public partial class MainViewModel : ViewModelBase
         DoAssembleStarcraftCommand.NotifyCanExecuteChanged();
 
         UseThrusterCommand.NotifyCanExecuteChanged();
-        ApplyManeuverCommand.NotifyCanExecuteChanged();
+        // ApplyManeuverCommand.NotifyCanExecuteChanged();
 
         ResearchCommand.NotifyCanExecuteChanged();
 
@@ -495,6 +501,8 @@ public partial class MainViewModel : ViewModelBase
 
         // Refresh Maneuver Dialog
         // OnPropertyChanged(nameof())
+
+        SyncLogs();
     }
 
     public void RefreshViewModelsIfDirty()
@@ -515,4 +523,18 @@ public partial class MainViewModel : ViewModelBase
     public bool Dirty;
 
     bool CanUseThruster(Component thruster) => thruster.IsAvailable;
+
+    int displayedLogs = 0;
+
+    public void SyncLogs()
+    {
+        if(displayedLogs < Session.State.Logs.Count)
+        {
+            var LogStr = string.Join("\n", Session.State.Logs.Skip(displayedLogs));
+
+            ShowMessage(LogStr, "Score Update");
+
+            displayedLogs = Session.State.Logs.Count;
+        }
+    }
 }

@@ -19,7 +19,7 @@
             
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
                 <Button Command="{Binding CancelManeuverDialogCommand}">Close</Button>
-                <Button Command="{Binding ApplyManeuverCommand}">Maneuver</Button>
+                <!-- <Button Command="{Binding ApplyManeuverCommand}">Maneuver</Button> -->
             </StackPanel>
             
             <StackPanel>

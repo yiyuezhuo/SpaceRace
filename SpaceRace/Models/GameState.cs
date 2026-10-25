@@ -84,6 +84,12 @@ public partial class GameState : ObservableObject
     public ObservableCollection<Spacecraft> Spacecrafts{get;} = new();
 
     public List<string> Logs{get;} = new();
+    public void Log(string log)
+    {
+        Console.WriteLine(log);
+        Logs.Add(log);
+        // SHow it in dialog through some event?
+    }
 
     public Dictionary<string, Location> NameToLocation = new();
     public Dictionary<Location, Dictionary<Location, Route>> SourceToDestinationToRoute = new();
@@ -95,28 +101,28 @@ public partial class GameState : ObservableObject
     public GameState()
     {
         // Earth
-        Location Earth = new(){Name="Earth", IsHome=true, Explored=true};
+        Location Earth = new(){Name="Earth", IsHome=true, Explored=true, HasExploreValue=true, Surveyed=true, Entered=true, HumanEntered=true, HumanMaintained=true};
         Location SuborbitalFlight = new(){Name="Suborbital Flight", Type=LocationType.Planet};
-        Location EarthOrbit = new(){Name="Earth Orbit", Type=LocationType.Orbit};
+        Location EarthOrbit = new(){Name="Earth Orbit", Type=LocationType.Orbit, HasExploreValue=true, Surveyed=true};
 
         // Moon
-        Location Moon = new(){Name="Moon", Type=LocationType.Planet};
+        Location Moon = new(){Name="Moon", Type=LocationType.Planet, HasExploreValue=true};
         Location LunarOrbit = new(){Name="Lunar Orbit", Type=LocationType.Orbit};
         Location LunarFlyBy = new(){Name="Lunar Fly-By", Type=LocationType.FlyBy};
 
         // Mars
-        Location Mars = new(){Name="Mars", Type=LocationType.Planet};
+        Location Mars = new(){Name="Mars", Type=LocationType.Planet, HasExploreValue=true};
         Location MarsOrbit = new(){Name="Mars Orbit", Type=LocationType.Orbit};
         Location MarsFlyBy = new(){Name="Mars Fly-By", Type=LocationType.FlyBy};
         Location Phobos = new(){Name="Phobos", Type=LocationType.Planet};
 
         // Venus
-        Location Venus = new(){Name="Venus", Type=LocationType.Planet};
+        Location Venus = new(){Name="Venus", Type=LocationType.Planet, HasExploreValue=true};
         Location VenusOrbit = new(){Name="Venus Orbit", Type=LocationType.Orbit};
         Location VenusFlyBy = new(){Name="Venus Fly-By", Type=LocationType.FlyBy};
 
         // Ceres
-        Location Ceres = new(){Name="Ceres", Type=LocationType.Planet};
+        Location Ceres = new(){Name="Ceres", Type=LocationType.Planet, HasExploreValue=true};
 
         // Inner Planets Transfer
         Location InnerPlanetsTransfer = new(){Name="Inner Planets Transfer", Type=LocationType.FlyBy};
@@ -236,7 +242,7 @@ public partial class GameState : ObservableObject
                     component.Used = false;
                 }
 
-                // non-dmaged Doctor restore other damaged astronaut
+                // non-damaged Doctor restore other damaged astronaut
                 var hasEffDoctor = spacecraft.Components.Any(c => c.Def.IsDoctor && !c.Damaged);
                 foreach(var astronaut in spacecraft.IterAstronaut().ToList())
                 {
@@ -266,9 +272,48 @@ public partial class GameState : ObservableObject
                 spacecraft.MoveState.ElapsedYears += 1;
                 if(spacecraft.MoveState.ElapsedYears >= spacecraft.MoveState.RequiredYears) // Complete the movement
                 {
-                    spacecraft.Location = spacecraft.MoveState.Route.Destination;
+                    // spacecraft.Location = spacecraft.MoveState.Route.Destination;
+                    MoveTo(spacecraft, spacecraft.MoveState.Route.Destination);
                     spacecraft.MoveState = null;
                 }
+            }
+        }
+
+        // Supply Consumption
+        foreach(var spacecraft in Spacecrafts)
+        {
+            var astronauts = spacecraft.Components.Where(c => c.Def.Type == ComponentType.Astronaut).ToList();
+            if(astronauts.Count > 0)
+            {
+                var supplyConsumption = astronauts.Count * 0.2;
+                var currentSupply = spacecraft.Components.Count(c => c.Def.Type == ComponentType.Supply);
+                if(supplyConsumption > currentSupply)
+                {
+                    Log($"Out-of-supply, all astronaut in {spacecraft} killed");
+                    foreach(var astronaut in astronauts)
+                    {
+                        DestroyComponent(spacecraft, astronaut);
+                    }
+                }
+                var usedSupply = (int)Math.Ceiling(Math.Min(supplyConsumption, currentSupply));
+                for(int i=0; i<usedSupply; i++)
+                {
+                    var supply = spacecraft.Components.FirstOrDefault(c => c.Def.Type == ComponentType.Supply);
+                    if(supply == null)
+                        break;
+                    DestroyComponent(spacecraft, supply);
+                }
+            }
+        }
+
+        // Human Maintain mission housekeeping
+        foreach(var spacecraft in Spacecrafts)
+        {
+            if(spacecraft.Location.HasExploreValue && !spacecraft.Location.HumanMaintained && spacecraft.Components.Any(c => c.Def.Type == ComponentType.Astronaut))
+            {
+                spacecraft.Location.HumanMaintained = true;
+                Score += 4;
+                Log($"Human maintained in {spacecraft.Location.Name}, +4 score");
             }
         }
     }
@@ -278,7 +323,7 @@ public partial class GameState : ObservableObject
         if(component.Def.Type == ComponentType.Astronaut)
         {
             Score -= 2;
-            Logs.Add($"{component.Def.Name} Kill, -2 score");
+            Log($"{component.Def.Name} Kill, -2 score");
         }
         spacecraft.Components.Remove(component);
     }
@@ -345,7 +390,7 @@ public partial class GameState : ObservableObject
             thruster.Used = true;
         }
         
-        PrepareManeuverState.AppliedThrust += thruster.Def.Thrust * targetYears;
+        PrepareManeuverState.AppliedThrust += thruster.Def.Thrust * Math.Max(1, targetYears);
     }
 
     public void UseThrusterForManeuver(Component thruster) => UseThrusterForManeuver(thruster, PrepareManeuverState?.TargetYears ?? 0);
@@ -375,6 +420,44 @@ public partial class GameState : ObservableObject
         return PrepareManeuverState.AppliedThrust >= PrepareManeuverState.StartMass * PrepareManeuverState.Route.Difficulty;
     }
 
+    public void MoveTo(Spacecraft spacecraft, Location destination)
+    {
+        spacecraft.Location = destination;
+        MoveToHousekeepingForMission(spacecraft, destination);
+    }
+
+    void MoveToHousekeepingForMission(Spacecraft spacecraft, Location destination)
+    {
+        if(destination.HasExploreValue)
+        {
+            if(!destination.Entered && spacecraft.Components.Any(c => c.Def.Surveyable))
+            {
+                destination.Entered = true;
+                Log($"Enter {destination.Name}, +4 score");
+                Score += 4;
+            }
+            if(!destination.HumanEntered && spacecraft.Components.Any(c => c.Def.Type == ComponentType.Astronaut))
+            {
+                destination.HumanEntered = true;
+                Log($"Human enter {destination.Name}, +4 score");
+                Score += 4;
+            }
+        }
+
+        if(Researches.Any(r => r.Researched && r.EnableSurveying) && spacecraft.Components.Any(c => !c.Damaged && c.Def.Surveyable))
+        {
+            foreach(var (dest, route) in SourceToDestinationToRoute[destination])
+            {
+                if(dest.HasExploreValue && !dest.Surveyed)
+                {
+                    dest.Surveyed = true;
+                    Score += 4;
+                    Log($"Survey {destination.Name}, +4 score");
+                }
+            }
+        }
+    }
+
     public void BeginPrepareManeuver()
     {
         if(PrepareManeuverState == null)
@@ -384,7 +467,8 @@ public partial class GameState : ObservableObject
         
         if(PrepareManeuverState.Route.Years == 0)
         {
-            PrepareManeuverState.Spacecraft.Location = PrepareManeuverState.Route.Destination;
+            // PrepareManeuverState.Spacecraft.Location = PrepareManeuverState.Route.Destination;
+            MoveTo(PrepareManeuverState.Spacecraft, PrepareManeuverState.Route.Destination);
         }
         else
         {

@@ -34,7 +34,7 @@
                 <WrapPanel>
                     <Button Command="{Binding OpenResearchDialogCommand}">Research</Button>
                     <Button Command="{Binding OpenInventoryDialogCommand}">Inventory</Button>
-                    <Button Command="{Binding OpenMissionDialogCommand}">Missions</Button>
+                    <!-- <Button Command="{Binding OpenMissionDialogCommand}">Missions</Button> -->
                 </WrapPanel>
 
 
