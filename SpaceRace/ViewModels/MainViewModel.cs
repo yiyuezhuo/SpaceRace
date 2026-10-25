@@ -41,12 +41,18 @@ public partial class MainViewModel : ViewModelBase
     {
         Session = session;
 
-        Session.State.Spacecrafts.CollectionChanged += OnSpacecraftChanged;
+        // Session.State.Spacecrafts.CollectionChanged += OnSpacecraftChanged;
 
         SelectedInventoryComponents.CollectionChanged += (_, _) =>
         {
-            DoAssembleStarcraftCommand.NotifyCanExecuteChanged();
+            // DoAssembleStarcraftCommand.NotifyCanExecuteChanged();
+            NotifySomethingChanged();
         };
+
+        // SelectedSpacecraft.PropertyChanged += (_, _) =>
+        // {
+            
+        // };
 
         // LocationMarkers = Session.State.Locations.ToDictionary(
         //     location => location,
@@ -56,10 +62,16 @@ public partial class MainViewModel : ViewModelBase
         // RefreshLocationMarkers();
     }
 
-    void OnSpacecraftChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    partial void OnSelectedSpacecraftChanged(Spacecraft? value)
     {
-        OnPropertyChanged(nameof(SpacecraftsOfSelectedLocation));
+        SelectedComponentsOfSelectedSpacecraft.Clear();
+        NotifySomethingChanged();
     }
+
+    // void OnSpacecraftChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    // {
+    //     OnPropertyChanged(nameof(SpacecraftsOfSelectedLocation));
+    // }
 
     // public ObservableCollection<Country> Countries { get; } =
     // [
@@ -75,12 +87,12 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     // [NotifyPropertyChangedFor(nameof(ThrustersOfSelectedSpacecraft))]
-    [NotifyCanExecuteChangedFor(nameof(DoManeuverCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DoDockCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DoSeparateCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DoDisassembleCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DoRepairCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DoHealCommand))]
+    // [NotifyCanExecuteChangedFor(nameof(DoManeuverCommand))]
+    // [NotifyCanExecuteChangedFor(nameof(DoDockCommand))]
+    // [NotifyCanExecuteChangedFor(nameof(DoSeparateCommand))]
+    // [NotifyCanExecuteChangedFor(nameof(DoDisassembleCommand))]
+    // [NotifyCanExecuteChangedFor(nameof(DoRepairCommand))]
+    // [NotifyCanExecuteChangedFor(nameof(DoHealCommand))]
     Spacecraft? selectedSpacecraft;
 
     public List<Spacecraft> SpacecraftsOfSelectedLocation
@@ -105,13 +117,15 @@ public partial class MainViewModel : ViewModelBase
             {
                 Session.State.StartPrepareManeuver(SelectedSpacecraft, route, route.Years);
                 
-                RefreshManeuverDialog();
+                // RefreshManeuverDialog();
 
                 IsManeuverDialogOpen = true;
             }
 
             SelectState = MainViewModelSelectState.Select;
         }
+
+        NotifySomethingChanged();
     }
 
     public string LocationDescription
@@ -222,7 +236,9 @@ public partial class MainViewModel : ViewModelBase
 
         Session.State.DoResearch(SelectedResearch);
 
-        ResearchCommand.NotifyCanExecuteChanged(); // Not Researched -> Researched may disable the button
+        NotifySomethingChanged();
+
+        // ResearchCommand.NotifyCanExecuteChanged(); // Not Researched -> Researched may disable the button
     }
 
     [ObservableProperty]
@@ -274,7 +290,9 @@ public partial class MainViewModel : ViewModelBase
 
         Session.State.BuyComponent(SelectedComponentDef);
 
-        DoPurchaseComponentCommand.NotifyCanExecuteChanged();
+        NotifySomethingChanged();
+
+        // DoPurchaseComponentCommand.NotifyCanExecuteChanged();
     }
 
     bool CanDoPurchaseComponent()
@@ -294,6 +312,8 @@ public partial class MainViewModel : ViewModelBase
         Session.State.AssembleSpacecraft(SelectedInventoryComponents);
 
         SelectedInventoryComponents.Clear();
+
+        NotifySomethingChanged();
     }
 
     bool CanDoAssembleStarcraft()
@@ -312,6 +332,8 @@ public partial class MainViewModel : ViewModelBase
         
         Session.State.NextTurnHousekeeping();
         // Branch End of Game
+
+        NotifySomethingChanged();
     }
 
     [RelayCommand(CanExecute =nameof(CanDoManeuver))]
@@ -347,6 +369,8 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         Session.State.SeparateSpacecraft(SelectedSpacecraft, SelectedComponentsOfSelectedSpacecraft);
+    
+        NotifySomethingChanged();
     }
 
     bool CanDoSeparate()
@@ -363,6 +387,8 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         Session.State.DisassembleSpacecraft(SelectedSpacecraft);
+
+        NotifySomethingChanged();
     }
 
     bool CanDoDisassemble()
@@ -370,16 +396,26 @@ public partial class MainViewModel : ViewModelBase
         if(SelectedLocation == null || SelectedSpacecraft == null)
             return false;
 
-        return SelectedLocation.IsHome;
+        return SelectedSpacecraft.Location.IsHome;
     }
 
     [RelayCommand(CanExecute =nameof(CanDoRepair))]
-    void DoRepair() => Session.State.DoRepair(SelectedSpacecraft);
+    void DoRepair()
+    {
+        Session.State.DoRepair(SelectedSpacecraft);
+    
+        NotifySomethingChanged();
+    }
 
     bool CanDoRepair() => Session.State.CanDoRepair(SelectedSpacecraft);
 
     [RelayCommand(CanExecute =nameof(CanDoHeal))]
-    void DoHeal() => Session.State.DoHeal(SelectedSpacecraft);
+    void DoHeal()
+    {
+        Session.State.DoHeal(SelectedSpacecraft);
+
+        NotifySomethingChanged();
+    }
 
     bool CanDoHeal() => Session.State.CanDoHeal(SelectedSpacecraft);
 
@@ -393,6 +429,8 @@ public partial class MainViewModel : ViewModelBase
     void ApplyManeuver()
     {
         Session.State.BeginPrepareManeuver();
+
+        NotifySomethingChanged();
     }
 
     bool CanApplyManeuver() => Session.State.PrepareManeuverBeginable();
@@ -407,43 +445,74 @@ public partial class MainViewModel : ViewModelBase
     //     }
     // }
 
-    public bool IsManeuverDialogTargetYearReadOnly
-    {
-        get
-        {
-            var state = Session.State.PrepareManeuverState;
-            if(state == null)
-                return true;
-            return state.AppliedThrust > 0;
-        }
-    }
+    // public bool IsManeuverDialogTargetYearReadOnly
+    // {
+    //     get
+    //     {
+    //         var state = Session.State.PrepareManeuverState;
+    //         if(state == null)
+    //             return true;
+    //         return state.AppliedThrust > 0;
+    //     }
+    // }
 
     [RelayCommand(CanExecute =nameof(CanUseThruster))]
     void UseThruster(Component thruster)
     {
         Session.State.UseThrusterForManeuver(thruster);
 
-        RefreshManeuverDialog();
+        // RefreshManeuverDialog();
+        NotifySomethingChanged();
     }
 
-    void RefreshManeuverDialog()
+    // void RefreshManeuverDialog()
+    // {
+    //     // TODO: Fix the Code-smell
+    //     // OnPropertyChanged(nameof(ThrustersOfSelectedSpacecraft));
+    //     // OnPropertyChanged(nameof(IsManeuverDialogTargetYearReadOnly));
+    // }
+
+    void RefreshViewModels()
     {
-        // TODO: Fix the Code-smell
-        // OnPropertyChanged(nameof(ThrustersOfSelectedSpacecraft));
-        OnPropertyChanged(nameof(IsManeuverDialogTargetYearReadOnly));
+        // Spacecraft Control Buttons
+        DoManeuverCommand.NotifyCanExecuteChanged();
+        DoDockCommand.NotifyCanExecuteChanged();
+        DoDisassembleCommand.NotifyCanExecuteChanged();
+        DoSeparateCommand.NotifyCanExecuteChanged();
+        DoRepairCommand.NotifyCanExecuteChanged();
+        DoHealCommand.NotifyCanExecuteChanged();
+
+        DoPurchaseComponentCommand.NotifyCanExecuteChanged();
+        DoAssembleStarcraftCommand.NotifyCanExecuteChanged();
+
         UseThrusterCommand.NotifyCanExecuteChanged();
         ApplyManeuverCommand.NotifyCanExecuteChanged();
+
+        ResearchCommand.NotifyCanExecuteChanged();
+
+        // Complex derived attributes
+        OnPropertyChanged(nameof(SpacecraftsOfSelectedLocation));
+
+        // Refresh Maneuver Dialog
+        // OnPropertyChanged(nameof())
     }
 
-    // void RefreshSpacecraftControlButtons()
-    // {
-    //     DoManeuverCommand.NotifyCanExecuteChanged();
-    //     DoDockCommand.NotifyCanExecuteChanged();
-    //     DoDisassembleCommand.NotifyCanExecuteChanged();
-    //     DoSeparateCommand.NotifyCanExecuteChanged();
-    //     DoRepairCommand.NotifyCanExecuteChanged();
-    //     DoHealCommand.NotifyCanExecuteChanged();
-    // }
+    public void RefreshViewModelsIfDirty()
+    {
+        if(Dirty)
+        {
+            Dirty = false;
+            RefreshViewModels();
+        }
+    }
+
+    public void NotifySomethingChanged()
+    {
+        // Dirty = true;
+        RefreshViewModels();
+    }
+
+    public bool Dirty;
 
     bool CanUseThruster(Component thruster) => thruster.IsAvailable;
 }

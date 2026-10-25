@@ -9,7 +9,7 @@ public partial class Research : ObservableObject
     public int Price{get;set;} = 10;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ResearchedStatus))]
+    // [NotifyPropertyChangedFor(nameof(ResearchedStatus))]
     public bool researched;
 
     public HashSet<BuildableTag> Unlocks = new();
@@ -42,5 +42,5 @@ public partial class Research : ObservableObject
         }
     }
 
-    public string ResearchedStatus => Researched ? "Researched" : "Not Researched";
+    // public string ResearchedStatus => Researched ? "Researched" : "Not Researched";
 }

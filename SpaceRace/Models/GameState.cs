@@ -219,7 +219,7 @@ public partial class GameState : ObservableObject
             component.Damaged = false;
         }
 
-        foreach(var spacecraft in Spacecrafts)
+        foreach(var spacecraft in Spacecrafts.ToList())
         {
             if(spacecraft.Location.IsHome)
             {
@@ -238,7 +238,7 @@ public partial class GameState : ObservableObject
 
                 // non-dmaged Doctor restore other damaged astronaut
                 var hasEffDoctor = spacecraft.Components.Any(c => c.Def.IsDoctor && !c.Damaged);
-                foreach(var astronaut in spacecraft.IterAstronaut())
+                foreach(var astronaut in spacecraft.IterAstronaut().ToList())
                 {
                     if(astronaut.Damaged)
                     {

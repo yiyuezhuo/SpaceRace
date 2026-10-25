@@ -18,7 +18,14 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
 
-        _mapRefreshTimer.Tick += (_,_) => RefreshLocationMarkers();
+        _mapRefreshTimer.Tick += (_,_) => 
+        {
+            RefreshLocationMarkers();
+            // if(DataContext is MainViewModel vm)
+            // {
+            //     vm.RefreshViewModelsIfDirty();
+            // }
+        };
 
         _mapRefreshTimer.Start();
     }

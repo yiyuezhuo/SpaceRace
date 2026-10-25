@@ -119,11 +119,19 @@ public class ComponentDef
     }
 }
 
-public class Component
+public partial class Component : ObservableObject
 {
     public required ComponentDef Def{get;set;}
-    public bool Damaged{get;set;}
-    public bool Used{get;set;} // Ion Thruster
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FullDescription))]
+    [NotifyPropertyChangedFor(nameof(IsAvailable))]
+    bool damaged;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FullDescription))]
+    [NotifyPropertyChangedFor(nameof(IsAvailable))]
+    bool used; // Ion Thruster
 
     public string FullDescription
     {

@@ -24,7 +24,7 @@
             
             <StackPanel>
                 <Label Content="Target Years" Target="TargetYearsNumericUpDown" />
-                <NumericUpDown x:Name="TargetYearsNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.TargetYears}" IsReadOnly="{Binding IsManeuverDialogTargetYearReadOnly}" />
+                <NumericUpDown x:Name="TargetYearsNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.TargetYears}" IsReadOnly="{Binding !!Session.State.PrepareManeuverState.AppliedThrust}" />
                 
                 <Label Content="Start Mass" Target="StartMassNumericUpDown" />
                 <NumericUpDown x:Name="StartMassNumericUpDown" Value="{Binding Session.State.PrepareManeuverState.StartMass}" IsReadOnly="True" />

@@ -16,10 +16,16 @@
     <Border Background="{DynamicResource SystemRegionColor}">
         <Grid RowDefinitions="Auto,*,Auto">
             <TextBlock Text="Research" Grid.Row="0" Padding="4, 2" FontSize="20" FontWeight="Bold" />
-            <TableView ItemsSource="{Binding Session.State.Researches}" SelectedItem="{Binding SelectedResearch, Mode=TwoWay}" SelectionMode="Single" Grid.Row="1">
+            <TableView ItemsSource="{Binding Session.State.Researches}" 
+                    SelectedItem="{Binding SelectedResearch, Mode=TwoWay}"
+                    SelectionMode="Single"
+                    Grid.Row="1">
                 <TableView.Columns>
                     <TableViewColumn Header="Name" Binding="{Binding Name}" />
-                    <TableViewColumn Header="Status" Binding="{Binding ResearchedStatus}"  Width="120" />
+                    <TableViewColumn Header="Status"
+                        Binding="{Binding Researched,
+                        Converter={x:Static vm:GameConverters.ResearchStatus}}"
+                        Width="120" />
                     <TableViewColumn Header="Price" Binding="{Binding Price}"  Width="50" />
                     <TableViewColumn Header="Description" Binding="{Binding Description}" />
                 </TableView.Columns>
