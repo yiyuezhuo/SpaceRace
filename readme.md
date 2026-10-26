@@ -34,3 +34,8 @@ dotnet publish -c Release -p:CompressionEnabled=false
 ```
 
 If `CompressionEnabled=false` is not used. `br` and `gz` would be created as well. `br` means `Brotli compression format` which is also used by Unity Webgl build.
+
+## Credit
+
+- Joseph Fatula's Leaving Earth: https://boardgamegeek.com/boardgame/173064/leaving-earth
+- BGM: https://opengameart.org/content/space-echo
